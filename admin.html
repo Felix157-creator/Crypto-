@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CryptoPro Admin Panel</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>CryptoPro Admin Panel</header>
+
+<nav>
+  <button onclick="showAdmin('users')">Users</button>
+  <button onclick="showAdmin('withdrawals')">Withdrawals</button>
+</nav>
+
+<div class="container">
+
+  <div id="users" class="hidden">
+    <h3>Users Overview</h3>
+    <table>
+      <thead>
+        <tr><th>User ID</th><th>Balance</th><th>Action</th></tr>
+      </thead>
+      <tbody id="usersTable"></tbody>
+    </table>
+  </div>
+
+  <div id="withdrawals">
+    <h3>Pending Withdrawals</h3>
+    <table>
+      <thead>
+        <tr><th>User ID</th><th>Amount</th><th>Method</th><th>Destination</th><th>Action</th></tr>
+      </thead>
+      <tbody id="withdrawTable"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script src="scripts.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded",()=>{showAdmin('withdrawals');});
+</script>
+
+</body>
+</html>
