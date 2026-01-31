@@ -1,0 +1,279 @@
+code:
+// ==================== AUTH CHECK ====================
+function checkAuth() {
+    const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+    const user = localStorage.getItem('cryptoProUser');
+    
+    if (!isLoggedIn || !user) {
+        alert('⚠️ Please login first!');
+        window.location.href = 'login.html';
+        return null;
+    }
+    
+    return JSON.parse(user);
+}
+
+let currentUser = checkAuth();
+if (currentUser) {
+    document.getElementById('userName').textContent = currentUser.name;
+}
+
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        sessionStorage.removeItem('isLoggedIn');
+        alert('✅ Logged out successfully!');
+        window.location.href = 'index.html';
+    }
+}
+
+// ==================== APP STATE ====================
+let appState = {
+    accountType: currentUser?.accountType || 'demo',
+    demoBalance: currentUser?.demoBalance || 10000,
+    realBalance: currentUser?.realBalance || 0,
+    displayBalance: currentUser?.displayBalance || 0,
+    userTotalDeposited: 0,
+    activeUsers: 1247,
+    volume24h: 97.5
+};
+
+// ==================== LIVE STATS ====================
+function updateLiveStats() {
+    appState.activeUsers += Math.floor(Math.random() * 100) - 50;
+    appState.activeUsers = Math.max(850, Math.min(1650, appState.activeUsers));
+    
+    appState.volume24h += (Math.random() - 0.5) * 8;
+    appState.volume24h = Math.max(85, Math.min(115, appState.volume24h));
+    
+    const usersEl = document.getElementById('activeUsers');
+    const volumeEl = document.getElementById('volume24h');
+    
+    if (usersEl) {
+        usersEl.textContent = appState.activeUsers.toLocaleString();
+        usersEl.style.color = '#00ff88';
+        setTimeout(() => usersEl.style.color = '#00d9ff', 300);
+    }
+    
+    if (volumeEl) {
+        volumeEl.textContent = '$' + appState.volume24h.toFixed(1) + 'M';
+        volumeEl.style.color = '#00ff88';
+        setTimeout(() => volumeEl.style.color = '#00d9ff', 300);
+    }
+}
+
+function scheduleLiveStatsUpdate() {
+    const delay = 3000 + Math.random() * 5000;
+    setTimeout(() => {
+        updateLiveStats();
+        scheduleLiveStatsUpdate();
+    }, delay);
+}
+
+scheduleLiveStatsUpdate();
+
+// ==================== UI UPDATE ====================
+function updateUI() {
+    const balance = appState.accountType === 'demo' ? appState.demoBalance : appState.displayBalance;
+    document.getElementById('totalBalance').textContent = '$' + balance.toFixed(2);
+    
+    document.getElementById('demoBtn').classList.toggle('active', appState.accountType === 'demo');
+    document.getElementById('realBtn').classList.toggle('active', appState.accountType === 'real');
+    
+    saveState();
+}
+
+// ==================== ACCOUNT SWITCHING ====================
+document.getElementById('demoBtn').onclick = () => {
+    appState.accountType = 'demo';
+    updateUI();
+};
+
+document.getElementById('realBtn').onclick = () => {
+    appState.accountType = 'real';
+    updateUI();
+};
+
+// ==================== DEPOSIT ====================
+document.getElementById('depositBtn').onclick = () => {
+    if (appState.accountType === 'demo') {
+        if (confirm('⚠️ Switch to REAL account to deposit?')) {
+            appState.accountType = 'real';
+            updateUI();
+            setTimeout(() => document.getElementById('depositBtn').click(), 300);
+        }
+        return;
+    }
+    
+    const modal = createModal('depositModal', '💰 Deposit Funds', `
+        <div class="info-box">
+            <strong>⚡ INSTANT DEPOSIT</strong><br>
+            <small>Funds credited within 1-10 minutes</small>
+        </div>
+        
+        <div class="form-group">
+            <label>Amount (USD)</label>
+            <input type="number" id="depositAmount" min="10" step="0.01">
+        </div>
+        
+        <div class="form-group">
+            <label>Payment Method</label>
+            <select id="depositMethod">
+                <option>USDT (TRC20)</option>
+                <option>Bitcoin</option>
+                <option>M-Pesa</option>
+                <option>Airtel Money</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>Transaction Reference</label>
+            <input type="text" id="depositReference">
+        </div>
+        
+        <div class="payment-instruction">
+            <h3 style="color: #00d9ff;">💰 Payment Instructions</h3>
+            <p>Complete your payment to:</p>
+            <div class="payment-company">CryptoPro Trading</div>
+            <div class="payment-id">Payment ID: #CP${Date.now()}</div>
+            <div class="payment-note">
+                ⏱️ Processing: 1-10 minutes<br>
+                📧 Support: support@cryptoprotrading.com
+            </div>
+        </div>
+        
+        <button class="btn btn-primary btn-full" onclick="processDeposit()">✅ CONFIRM</button>
+    `);
+    
+    document.body.appendChild(modal);
+};
+
+function processDeposit() {
+    const amount = parseFloat(document.getElementById('depositAmount').value);
+    const reference = document.getElementById('depositReference').value;
+    
+    if (!amount || amount < 10) {
+        alert('❌ Minimum: $10');
+        return;
+    }
+    
+    if (!reference) {
+        alert('❌ Enter reference');
+        return;
+    }
+    
+    appState.displayBalance += amount;
+    appState.realBalance += amount;
+    appState.userTotalDeposited += amount;
+    
+    closeModal('depositModal');
+    updateUI();
+    
+    alert(`✅ DEPOSIT SUCCESS!\n\n$${amount.toFixed(2)}\nRef: ${reference}\n\nBalance: $${appState.displayBalance.toFixed(2)}`);
+}
+
+// ==================== WITHDRAW ====================
+document.getElementById('withdrawBtn').onclick = () => {
+    if (appState.accountType === 'demo') {
+        alert('Switch to REAL');
+        return;
+    }
+    
+    if (appState.displayBalance < 10) {
+        alert('❌ Insufficient');
+        return;
+    }
+    
+    if (appState.userTotalDeposited < 500) {
+        alert('❌ Deposit $500 total first');
+        return;
+    }
+    
+    const modal = createModal('withdrawModal', '💸 Withdraw', `
+        <div class="info-box">Available: $${appState.displayBalance.toFixed(2)}</div>
+        <div class="form-group">
+            <label>Amount</label>
+            <input type="number" id="withdrawAmount" min="10">
+        </div>
+        <button class="btn btn-primary btn-full" onclick="processWithdraw()">SUBMIT</button>
+    `);
+    
+    document.body.appendChild(modal);
+};
+
+function processWithdraw() {
+    const amount = parseFloat(document.getElementById('withdrawAmount').value);
+    
+    if (!amount || amount < 10) {
+        alert('❌ Min $10');
+        return;
+    }
+    
+    if (amount > appState.displayBalance) {
+        alert('❌ Insufficient');
+        return;
+    }
+    
+    appState.displayBalance -= amount;
+    closeModal('withdrawModal');
+    updateUI();
+    
+    alert(`✅ Withdrawal submitted!\n\n$${amount.toFixed(2)}\n⏱️ 1-3 days`);
+}
+
+// ==================== TRADE ====================
+document.getElementById('tradeBtn').onclick = () => {
+    alert('🚀 Trading feature - Coming soon!');
+};
+
+document.getElementById('botBtn').onclick = () => {
+    alert('🤖 Bot trading - Coming soon!');
+};
+
+// ==================== MODAL HELPERS ====================
+function createModal(id, title, content) {
+    const modal = document.createElement('div');
+    modal.className = 'modal active';
+    modal.id = id;
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>${title}</h2>
+                <button class="close-btn" onclick="closeModal('${id}')">×</button>
+            </div>
+            <div class="modal-body">${content}</div>
+        </div>
+    `;
+    return modal;
+}
+
+function closeModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) {
+        modal.classList.remove('active');
+        setTimeout(() => modal.remove(), 300);
+    }
+}
+
+// ==================== STATE MANAGEMENT ====================
+function saveState() {
+    currentUser.accountType = appState.accountType;
+    currentUser.demoBalance = appState.demoBalance;
+    currentUser.realBalance = appState.realBalance;
+    currentUser.displayBalance = appState.displayBalance;
+    
+    localStorage.setItem('cryptoProUser', JSON.stringify(currentUser));
+}
+
+function loadState() {
+    if (currentUser) {
+        appState.accountType = currentUser.accountType || 'demo';
+        appState.demoBalance = currentUser.demoBalance || 10000;
+        appState.realBalance = currentUser.realBalance || 0;
+        appState.displayBalance = currentUser.displayBalance || 0;
+    }
+}
+
+// ==================== INITIALIZE ====================
+loadState();
+updateUI();
+console.log('✅ Dashboard Loaded');
