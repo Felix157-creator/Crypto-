@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CryptoPro Investment Trading</title>
+<style>
+body { margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:linear-gradient(135deg,#0a1628,#1e3a5f); color:#fff; overflow-x:hidden; }
+
+/* Navigation Bar */
+.navbar {
+    background: rgba(20, 35, 60, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid rgba(0, 217, 255, 0.2);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 24px;
+    font-weight: 700;
+    color: #00d9ff;
+}
+
+.nav-links {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.nav-links a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover {
+    color: #00d9ff;
+}
+
+.btn-nav {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+}
+
+.btn-login {
+    background: transparent;
+    color: #00d9ff;
+    border: 2px solid #00d9ff;
+}
+
+.btn-signup {
+    background: linear-gradient(135deg, #00d9ff, #0099cc);
+    color: #fff;
+}
+
+.btn-signup:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 217, 255, 0.4);
+}
+
+.container { max-width:900px; margin:30px auto; padding:0 20px; position:relative; }
+.card { background: rgba(20,35,60,0.9); border-radius:24px; padding:30px; margin-bottom:24px; text-align:center; box-shadow:0 8px 20px rgba(0,0,0,0.4); transition:0.3s; }
+.card:hover { transform:translateY(-4px); box-shadow:0 12px 28px rgba(0,0,0,0.5); }
+.balance { font-size:48px; font-weight:700; margin:20px 0; background:linear-gradient(135deg,#00d9ff,#a855f7); -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100% { transform:scale(1);} 50%{transform:scale(1.05);} }
+button { width:100%; padding:16px; border-radius:16px; border:none; font-weight:600; margin-top:12px; font-size:16px; cursor:pointer; transition:all 0.3s; }
+button.deposit { background:linear-gradient(135deg,#00d9ff,#0099cc); color:#fff; }
+button.withdraw { background:linear-gradient(135deg,#ff006e,#cc0055); color:#fff; }
+button:hover { transform:translateY(-3px); box-shadow:0 8px 25px rgba(0,0,0,0.5); }
+.notice { background:rgba(0,217,255,0.1); padding:14px; border-radius:12px; margin-top:16px; font-size:14px; line-height:1.6; }
+.stats { display:flex; justify-content:space-around; background:rgba(0,217,255,0.1); border-radius:16px; padding:12px; margin-bottom:20px; flex-wrap:wrap; }
+.stat { text-align:center; margin:6px 0; }
+.stat-value { font-size:20px; font-weight:700; color:#00d9ff; }
+.stat-label { font-size:11px; color:rgba(255,255,255,0.7); text-transform:uppercase; letter-spacing:0.5px; }
+.testimonials { margin-top:20px; overflow:hidden; height:80px; position:relative; }
+.testimonial { background:rgba(10,25,45,0.6); border-radius:16px; padding:20px; margin-bottom:12px; font-size:14px; line-height:1.5; position:absolute; width:100%; opacity:0; transition:opacity 1s; }
+.testimonial.active { opacity:1; position:relative; }
+h2.section-title { color:#00d9ff; margin-bottom:16px; text-align:left; letter-spacing:2px; }
+.crypto-card { display:flex; justify-content:space-between; align-items:center; background:rgba(10,25,45,0.6); border-radius:16px; padding:16px; margin-bottom:12px; transition:all 0.3s; cursor:pointer; position:relative; }
+.crypto-card:hover { background:rgba(10,25,45,0.8); transform:translateX(5px); }
+.asset-name { font-size:16px; font-weight:600; }
+.asset-price { font-size:18px; font-weight:700; }
+.asset-change { font-size:13px; padding:4px 8px; border-radius:6px; }
+.positive { color:#00ff88; background: rgba(0,255,136,0.1); }
+.negative { color:#ff006e; background: rgba(255,0,110,0.1); }
+.badge { background:#00ff88;color:#000;font-weight:700;padding:6px 12px;border-radius:12px;display:inline-block;margin-top:10px;font-size:12px; }
+.chart { width:100%; height:80px; margin-top:8px; border-radius:8px; background:rgba(0,217,255,0.05); position:relative; overflow:hidden; }
+.chart div { position:absolute; bottom:0; width:4px; background:#00d9ff; transition:height 0.5s; }
+#profitTicker { background:rgba(0,217,255,0.1); padding:12px; border-radius:16px; font-size:14px; margin-bottom:20px; overflow:hidden; white-space:nowrap; }
+#profitTicker span { display:inline-block; margin-right:40px; animation:scroll 15s linear infinite; }
+@keyframes scroll { 0%{transform:translateX(100%);} 100%{transform:translateX(-100%);} }
+#profitChart { display:flex; justify-content:space-between; margin-top:12px; }
+.bar { width:18px; background:#00ff88; border-radius:8px; display:inline-block; transition:height 0.5s; }
+
+/* Hero Section */
+.hero {
+    text-align: center;
+    padding: 60px 20px 40px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 24px;
+    margin-bottom: 30px;
+}
+
+.hero h1 {
+    font-size: 42px;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, #00d9ff, #a855f7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero p {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-large {
+    padding: 16px 32px;
+    font-size: 18px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #00d9ff, #0099cc);
+    color: #fff;
+    border: none;
+}
+
+.btn-secondary {
+    background: transparent;
+    color: #00d9ff;
+    border: 2px solid #00d9ff;
+}
+
+/* Mobile menu toggle */
+.menu-toggle {
+    display: none;
+    background: transparent;
+    border: none;
+    color: #00d9ff;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: auto;
+}
+
+@media (max-width: 768px) {
+    .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: rgba(20, 35, 60, 0.98);
+        flex-direction: column;
+        padding: 20px;
+        border-bottom: 1px solid rgba(0, 217, 255, 0.2);
+    }
+    
+    .nav-links.active {
+        display: flex;
+    }
+    
+    .menu-toggle {
+        display: block;
+    }
+    
+    .hero h1 {
+        font-size: 28px;
+    }
+    
+    .hero p {
+        font-size: 16px;
+    }
+}
+</style>
+</head>
+<body>
+
+<!-- Navigation Bar -->
+<nav class="navbar">
+    <div class="logo">
+        <span style="font-size: 28px;">💎</span>
+        <span>CryptoPro</span>
+    </div>
+    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+    <div class="nav-links" id="navLinks">
+        <a href="#home">Home</a>
+        <a href="#markets">Markets</a>
+        <a href="#testimonials">Testimonials</a>
+        <a href="login.html" class="btn-nav btn-login">Login</a>
+        <a href="login.html?signup=true" class="btn-nav btn-signup">Sign Up</a>
+    </div>
+</nav>
+
+<div class="container">
+
+<!-- Hero Section -->
+<div class="hero" id="home">
+    <h1>Professional Crypto Investment Platform</h1>
+    <p>Join 50,000+ investors earning daily profits through our automated trading system. Trusted for over 10 years with $125M+ in total profits paid.</p>
+    <div class="cta-buttons">
+        <a href="login.html?signup=true" class="btn-large btn-primary">🚀 Start Trading Now</a>
+        <a href="dashboard.html" class="btn-large btn-secondary">📊 View Dashboard</a>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="stats" id="statsContainer">
+  <div class="stat"><div class="stat-value" id="activeUsers">50,123</div><div class="stat-label">Active Users</div></div>
+  <div class="stat"><div class="stat-value" id="totalProfits">$125.7M</div><div class="stat-label">Total Profits Paid</div></div>
+  <div class="stat"><div class="stat-value" id="years">10+</div><div class="stat-label">Years Trusted</div></div>
+</div>
+
+<!-- Profit Ticker -->
+<div id="profitTicker"></div>
+
+<!-- Balance Card (Logged In Users Only) -->
+<div class="card" id="balanceCard" style="display: none;">
+  <div style="opacity:0.7;font-size:14px;">TOTAL BALANCE</div>
+  <div class="balance" id="bal">$0.00</div>
+  <button class="deposit" onclick="goToDeposit()">💰 Deposit</button>
+  <button class="withdraw" onclick="goToWithdraw()">💸 Withdraw</button>
+  <div class="notice">Your funds are securely managed. Login to access full dashboard features.</div>
+  <div class="badge">Trusted by 50,000+ Investors</div>
+  <div id="profitChart"></div>
+</div>
+
+<!-- Markets -->
+<div class="card" id="markets">
+  <h2 class="section-title">📊 Live Crypto Markets</h2>
+  <div id="cryptoContainer"></div>
+</div>
+
+<!-- Testimonials -->
+<div id="testimonials">
+  <h2 class="section-title">💬 Investor Testimonials</h2>
+  <div class="testimonials" id="testimonialContainer">
+    <div class="testimonial active">"I've been investing here for 3 years. My portfolio has grown 5x!" - <b>Jane K.</b></div>
+    <div class="testimonial">"Reliable and professional service. Always prompt support." - <b>Mark T.</b></div>
+    <div class="testimonial">"CryptoPro gave me my first real profits in crypto trading!" - <b>Lydia W.</b></div>
+    <div class="testimonial">"Best investment platform I've used. Support is excellent!" - <b>James P.</b></div>
+    <div class="testimonial">"Withdrew $2,500 last month with no issues. Highly recommend!" - <b>Angela T.</b></div>
+  </div>
+</div>
+
+<!-- Call to Action -->
+<div class="card" style="background: linear-gradient(135deg, #00d9ff, #a855f7); margin-top: 40px;">
+  <h2 style="color: #fff; margin-bottom: 16px;">Ready to Start Earning?</h2>
+  <p style="color: rgba(255, 255, 255, 0.9); margin-bottom: 24px;">Join thousands of successful investors today</p>
+  <a href="login.html?signup=true" class="btn-large" style="background: #fff; color: #0a1628; display: inline-block; width: auto; padding: 16px 40px;">
+    Create Free Account →
+  </a>
+</div>
+
+</div>
+
+<script>
+// Check if user is logged in
+function checkLoggedIn() {
+    const user = localStorage.getItem('cryptoProUser');
+    const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+    
+    if (user && isLoggedIn) {
+        const userData = JSON.parse(user);
+        document.getElementById('balanceCard').style.display = 'block';
+        
+        // Show user balance
+        const balance = userData.accountType === 'demo' ? userData.demoBalance : userData.displayBalance;
+        document.getElementById('bal').innerText = `$${balance.toFixed(2)}`;
+    }
+}
+
+// Navigation
+function goToDeposit() {
+    window.location.href = 'dashboard.html';
+    setTimeout(() => {
+        // Trigger deposit modal in dashboard
+        localStorage.setItem('openDeposit', 'true');
+    }, 100);
+}
+
+function goToWithdraw() {
+    window.location.href = 'dashboard.html';
+    setTimeout(() => {
+        localStorage.setItem('openWithdraw', 'true');
+    }, 100);
+}
+
+// Mobile menu toggle
+function toggleMenu() {
+    const navLinks = document.getElementById('navLinks');
+    navLinks.classList.toggle('active');
+}
+
+// Exchanges data
+let exchanges = [
+  {name:"Binance BTC/USDT",price:64256,change:+2.3,users:1234},
+  {name:"Binance ETH/USDT",price:3425,change:-1.2,users:2345},
+  {name:"Kraken BTC/USD",price:64200,change:+1.5,users:456},
+  {name:"Coinbase ETH/USD",price:3430,change:+0.9,users:567},
+  {name:"KuCoin SOL/USDT",price:98.8,change:+2.1,users:789},
+  {name:"Gate.io ADA/USDT",price:1.35,change:+1.2,users:890},
+  {name:"Bitfinex DOGE/USDT",price:0.25,change:-0.4,users:321},
+  {name:"Huobi BTC/USDT",price:64150,change:+1.1,users:654},
+  {name:"OKEx ETH/USDT",price:3428,change:+0.7,users:432},
+  {name:"Bittrex ADA/USDT",price:1.36,change:+0.8,users:213},
+  {name:"Poloniex LTC/USDT",price:150,change:+1.5,users:321},
+  {name:"Bitstamp BTC/USD",price:64210,change:+1.2,users:654},
+  {name:"Gemini ETH/USD",price:3429,change:+0.5,users:432},
+  {name:"Bybit SOL/USDT",price:99,change:+2.0,users:876},
+  {name:"OKCoin DOGE/USDT",price:0.252,change:+0.6,users:543},
+  {name:"Kraken LTC/USD",price:151,change:-0.3,users:213}
+];
+
+// Render exchanges
+function renderExchanges(){
+  const container = document.getElementById('cryptoContainer');
+  container.innerHTML='';
+  exchanges.forEach(c=>{
+    const div=document.createElement('div');
+    div.className='crypto-card';
+    let chartHTML='<div class="chart">';
+    for(let i=0;i<20;i++){ chartHTML+=`<div style="height:${Math.floor(Math.random()*60+10)}px; left:${i*4}px;"></div>`; }
+    chartHTML+='</div>';
+    div.innerHTML=`<span class="asset-name">${c.name} - ${c.users} active</span>
+                   <span class="asset-price">$${c.price}</span>
+                   <span class="asset-change ${c.change>0?'positive':'negative'}">${c.change>0?'+':''}${c.change}%</span>
+                   ${chartHTML}`;
+    container.appendChild(div);
+  });
+}
+
+// Testimonials rotation
+let currentTestimonial=0;
+setInterval(()=>{
+  const testimonials=document.querySelectorAll('.testimonial');
+  testimonials.forEach(t=>t.classList.remove('active'));
+  testimonials[currentTestimonial].classList.add('active');
+  currentTestimonial=(currentTestimonial+1)%testimonials.length;
+},4000);
+
+// Live updates
+const fakeUsers = ["Jane K.","Mark T.","Lydia W.","James P.","Katherine M.","Brian S.","Angela T.","David R."];
+function updateProfitTicker(){
+  const ticker = document.getElementById('profitTicker');
+  ticker.innerHTML='';
+  for(let i=0;i<fakeUsers.length;i++){
+    const gain=(Math.random()*120+5).toFixed(2);
+    const span=document.createElement('span');
+    span.innerText=`${fakeUsers[i]} earned $${gain} today!`;
+    ticker.appendChild(span);
+  }
+}
+
+function updateProfitChart(){
+  const chart = document.getElementById('profitChart');
+  chart.innerHTML='';
+  for(let i=0;i<8;i++){
+    const bar = document.createElement('div');
+    bar.className='bar';
+    bar.style.height=`${Math.random()*50+20}px`;
+    chart.appendChild(bar);
+  }
+}
+
+// Update stats dynamically
+function updateStats() {
+    const usersEl = document.getElementById('activeUsers');
+    const profitsEl = document.getElementById('totalProfits');
+    
+    // Vary users
+    let users = parseInt(usersEl.textContent.replace(',', ''));
+    users += Math.floor(Math.random() * 100) - 50;
+    users = Math.max(48000, Math.min(52000, users));
+    usersEl.textContent = users.toLocaleString();
+    
+    // Vary profits
+    let profits = parseFloat(profitsEl.textContent.replace('$', '').replace('M', ''));
+    profits += (Math.random() - 0.5) * 0.5;
+    profits = Math.max(120, Math.min(130, profits));
+    profitsEl.textContent = '$' + profits.toFixed(1) + 'M';
+}
+
+// Initialize
+setInterval(()=>{
+  exchanges.forEach(c=>{
+    c.change=(Math.random()*4-2).toFixed(2);
+    c.price=(c.price*(1 + c.change/100)).toFixed(2);
+    c.users += Math.floor(Math.random()*10-5);
+    if(c.users<0)c.users=0;
+  });
+  renderExchanges();
+  updateProfitTicker();
+  updateProfitChart();
+  updateStats();
+},3000);
+
+renderExchanges();
+updateProfitTicker();
+updateProfitChart();
+checkLoggedIn();
+</script>
+</body>
+</html>
