@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoPro - Professional Crypto Trading Platform</title>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a1628 0%, #1e3a5f 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } }
+        @keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .layer { display: none; min-height: 100vh; animation: fadeIn 0.5s ease-out; }
+        .layer.active { display: block; }
+        
+        .navbar { 
+            background: rgba(20, 35, 60, 0.95); 
+            backdrop-filter: blur(10px); 
+            padding: 16px 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+            border-bottom: 1px solid rgba(0, 217, 255, 0.2); 
+        }
+        
+        .logo { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            font-size: 24px; 
+            font-weight: 700; 
+            color: #00d9ff; 
+            cursor: pointer; 
+        }
+        
+        .nav-links { display: flex; gap: 20px; align-items: center; }
+        
+        .nav-btn { 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 8px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            font-size: 14px; 
+        }
+        
+        .btn-login { background: transparent; color: #00d9ff; border: 2px solid #00d9ff; }
+        .btn-signup { background: linear-gradient(135deg, #00d9ff, #0099cc); color: #fff; border: none; }
+        .btn-login:hover, .btn-signup:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0, 217, 255, 0.4); }
+        
+        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        
+        .card { 
+            background: rgba(20, 35, 60, 0.9); 
+            border-radius: 24px; 
+            padding: 30px; 
+            margin-bottom: 24px; 
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); 
+            border: 1px solid rgba(0, 217, 255, 0.1); 
+        }
+        
+        .btn { 
+            padding: 16px 32px; 
+            border: none; 
+            border-radius: 12px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            font-size: 16px; 
+            text-transform: uppercase; 
+        }
+        
+        .btn-primary { background: linear-gradient(135deg, #00d9ff, #0099cc); color: #fff; }
+        .btn-secondary { background: transparent; color: #00d9ff; border: 2px solid #00d9ff; }
+        .btn-success { background: linear-gradient(135deg, #00ff88, #00cc6d); color: #000; }
+        .btn-danger { background: linear-gradient(135deg, #ff006e, #cc0055); color: #fff; }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0, 217, 255, 0.4); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        
+        .hero { 
+            text-align: center; 
+            padding: 60px 20px 40px; 
+            background: rgba(0, 0, 0, 0.2); 
+            border-radius: 24px; 
+            margin-bottom: 30px; 
+        }
+        
+        .hero h1 { 
+            font-size: 42px; 
+            margin-bottom: 16px; 
+            background: linear-gradient(135deg, #00d9ff, #a855f7); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
+        
+        .hero p { 
+            font-size: 18px; 
+            color: rgba(255, 255, 255, 0.8); 
+            margin-bottom: 30px; 
+            line-height: 1.6; 
+        }
+        
+        .stats-grid { 
+            display: flex; 
+            justify-content: space-around; 
+            background: rgba(0, 217, 255, 0.1); 
+            border-radius: 16px; 
+            padding: 20px; 
+            margin: 24px 0; 
+            flex-wrap: wrap; 
+            gap: 16px; 
+        }
+        
+        .stat { text-align: center; flex: 1; min-width: 120px; }
+        .stat-value { font-size: 28px; font-weight: 700; color: #00d9ff; display: block; margin-bottom: 4px; }
+        .stat-label { font-size: 12px; color: rgba(255, 255, 255, 0.7); text-transform: uppercase; }
+        
+        .crypto-list { display: flex; flex-direction: column; gap: 12px; }
+        
+        .crypto-card { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: rgba(10, 25, 45, 0.6); 
+            border-radius: 16px; 
+            padding: 16px; 
+            transition: all 0.3s; 
+        }
+        
+        .crypto-card:hover { background: rgba(10, 25, 45, 0.8); transform: translateX(5px); }
+        
+        .asset-change { padding: 6px 12px; border-radius: 8px; font-size: 14px; font-weight: 600; }
+        .positive { color: #00ff88; background: rgba(0, 255, 136, 0.15); }
+        .negative { color: #ff006e; background: rgba(255, 0, 110, 0.15); }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-size: 14px; 
+            color: rgba(255, 255, 255, 0.8); 
+            font-weight: 600; 
+        }
+        
+        .form-group input, .form-group select { 
+            width: 100%; 
+            padding: 14px; 
+            background: rgba(10, 25, 45, 0.6); 
+            border: 1px solid rgba(0, 217, 255, 0.2); 
+            border-radius: 12px; 
+            color: #fff; 
+            font-size: 16px; 
+            transition: all 0.3s; 
+        }
+        
+        .form-group input:focus, .form-group select:focus { 
+            outline: none; 
+            border-color: #00d9ff; 
+            background: rgba(10, 25, 45, 0.8); 
+        }
+        
+        .modal { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0, 0, 0, 0.9); 
+            z-index: 10000; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 20px; 
+            overflow-y: auto; 
+        }
+        
+        .modal.active { display: flex; }
+        
+        .modal-content { 
+            background: linear-gradient(135deg, #0a1628 0%, #1e3a5f 100%); 
+            border-radius: 24px; 
+            padding: 32px; 
+            max-width: 500px; 
+            width: 100%; 
+            border: 1px solid rgba(0, 217, 255, 0.2); 
+            max-height: 90vh; 
+            overflow-y: auto; 
+            position: relative; 
+        }
+        
+        .modal-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 24px; 
+        }
+        
+        .modal-title { 
+            font-size: 24px; 
+            font-weight: 700; 
+            background: linear-gradient(135deg, #00d9ff, #a855f7); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
+        
+        .close-btn { 
+            background: none; 
+            border: none; 
+            color: #fff; 
+            font-size: 32px; 
+            cursor: pointer; 
+            line-height: 1; 
+            padding: 0; 
+            width: 32px; 
+            height: 32px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+        
+        .info-box { 
+            background: rgba(0, 217, 255, 0.1); 
+            border: 1px solid rgba(0, 217, 255, 0.3); 
+            border-radius: 12px; 
+            padding: 16px; 
+            margin-bottom: 20px; 
+            font-size: 14px; 
+            line-height: 1.6; 
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 32px; }
+            .stats-grid { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HOME LAYER -->
+<div id="homeLayer" class="layer active">
+    <nav class="navbar">
+        <div class="logo" onclick="showLayer('homeLayer')">
+            <span>💎</span>
+            <span>CryptoPro</span>
+        </div>
+        <div class="nav-links">
+            <button class="nav-btn btn-login" onclick="alert('Login feature coming soon!')">Login</button>
+            <button class="nav-btn btn-signup" onclick="alert('Signup feature coming soon!')">Sign Up</button>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="hero">
+            <h1>Trade Crypto Like a Pro</h1>
+            <p>Join thousands of traders making profits with our advanced AI-powered trading platform</p>
+            <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="showModal('depositModal')">Get Started Free</button>
+                <button class="btn btn-secondary" onclick="alert('Login coming soon!')">Login</button>
+            </div>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat">
+                <span class="stat-value">2,939</span>
+                <span class="stat-label">Active Users</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value">$126.3M</span>
+                <span class="stat-label">24H Volume</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value">98.7%</span>
+                <span class="stat-label">Success Rate</span>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2 style="color: #00d9ff; margin-bottom: 20px;">Live Crypto Prices</h2>
+            <div class="crypto-list">
+                <div class="crypto-card">
+                    <div>
+                        <strong>BTC/USDT</strong>
+                        <div style="font-size:12px;color:rgba(255,255,255,0.6);">Bitcoin</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-size:18px;font-weight:700;">$64,256.76</div>
+                        <span class="asset-change positive">+2.34%</span>
+                    </div>
+                </div>
+                
+                <div class="crypto-card">
+                    <div>
+                        <strong>ETH/USDT</strong>
+                        <div style="font-size:12px;color:rgba(255,255,255,0.6);">Ethereum</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-size:18px;font-weight:700;">$3,425.83</div>
+                        <span class="asset-change negative">-1.12%</span>
+                    </div>
+                </div>
+                
+                <div class="crypto-card">
+                    <div>
+                        <strong>SOL/USDT</strong>
+                        <div style="font-size:12px;color:rgba(255,255,255,0.6);">Solana</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-size:18px;font-weight:700;">$98.81</div>
+                        <span class="asset-change positive">+5.67%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- DEPOSIT MODAL -->
+<div id="depositModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">💰 Deposit Funds</h3>
+            <button class="close-btn" onclick="closeModal('depositModal')">&times;</button>
+        </div>
+        
+        <div class="info-box">
+            <strong>🔐 Secure Payment</strong><br>
+            Choose your preferred payment method. All deposits are processed in real-time.
+        </div>
+        
+        <form id="depositForm" onsubmit="selectDepositMethod(event)">
+            <div class="form-group">
+                <label>Deposit Amount (USD)</label>
+                <input type="number" id="depositAmount" min="50" step="0.01" placeholder="Minimum: $50" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Payment Method</label>
+                <select id="depositMethod" required>
+                    <option value="MPESA">📱 M-Pesa (Kenya) - Instant</option>
+                    <option value="USDT">💵 USDT (TRC20) - 1-3 mins</option>
+                    <option value="BANK">🏦 Bank Transfer - 1-4 hours</option>
+                </select>
+            </div>
+            
+            <div style="background: rgba(255, 170, 0, 0.1); border: 1px solid rgba(255, 170, 0, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px; font-size: 14px; color: #ffb400;">
+                ⚠️ <strong>Minimum deposit:</strong> $50.00
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Continue to Payment</button>
+        </form>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// FIXED SCRIPT - ALL SYNTAX ERRORS CORRECTED
+// ============================================================
+
+function selectDepositMethod(evt) {
+    evt.preventDefault();
+    var amount = parseFloat(document.getElementById('depositAmount').value);
+    var method = document.getElementById('depositMethod').value; // FIXED: Removed extra closing parenthesis
+    
+    if (amount < 50) {
+        alert('❌ Minimum deposit is $50');
+        return;
+    }
+    
+    closeModal('depositModal');
+    
+    if (method === 'MPESA') {
+        alert('✅ M-Pesa Payment Selected!\n\nAmount: $' + amount.toFixed(2) + '\n\nYou will be redirected to M-Pesa payment...');
+    } else if (method === 'USDT') {
+        alert('✅ USDT Payment Selected!\n\nAmount: $' + amount.toFixed(2) + '\n\nPlease send USDT to the provided address...');
+    } else if (method === 'BANK') {
+        alert('✅ Bank Transfer Selected!\n\nAmount: $' + amount.toFixed(2) + '\n\nBank details will be provided...');
+    }
+}
+
+function showLayer(layerId) {
+    document.querySelectorAll('.layer').forEach(function(layer) {
+        layer.classList.remove('active');
+    });
+    document.getElementById(layerId).classList.add('active');
+}
+
+function showModal(modalId) {
+    document.getElementById(modalId).classList.add('active');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('active');
+}
+
+// Close modal when clicking outside
+window.addEventListener('click', function(evt) {
+    if (evt.target.classList.contains('modal')) {
+        evt.target.classList.remove('active');
+    }
+});
+
+// Initialize on page load
+window.addEventListener('DOMContentLoaded', function() {
+    console.log('✅ CryptoPro Platform Loaded Successfully');
+});
+
+// ============================================================
+// END OF SCRIPT
+// ============================================================
+</script>
+</body>
+</html>
