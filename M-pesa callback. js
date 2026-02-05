@@ -1,0 +1,153 @@
+// api/mpesa-callback.js
+// Receives M-Pesa payment confirmations from Safaricom
+
+const https = require('https');
+
+// EMAIL CONFIG
+const EMAIL_CONFIG = {
+    SERVICE_ID: 'service_p61trhq',
+    TEMPLATE_ID: 'template_14jwbju',
+    PUBLIC_KEY: 'wbl3XpIjAm_87c4Nl',
+    PRIVATE_KEY: 'ZQ5HwvJhuZ8C1veOR8B_I'
+};
+
+// Send Email
+async function sendEmail(to, subject, message) {
+    return new Promise((resolve, reject) => {
+        const emailData = JSON.stringify({
+            service_id: EMAIL_CONFIG.SERVICE_ID,
+            template_id: EMAIL_CONFIG.TEMPLATE_ID,
+            user_id: EMAIL_CONFIG.PUBLIC_KEY,
+            accessToken: EMAIL_CONFIG.PRIVATE_KEY,
+            template_params: {
+                to_email: to,
+                subject: subject,
+                message: message,
+                from_name: 'CryptoPro Trading'
+            }
+        });
+        
+        const options = {
+            hostname: 'api.emailjs.com',
+            path: '/api/v1.0/email/send',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': emailData.length
+            }
+        };
+        
+        const req = https.request(options, (res) => {
+            let data = '';
+            res.on('data', (chunk) => data += chunk);
+            res.on('end', () => {
+                console.log('Email sent:', data);
+                resolve(data);
+            });
+        });
+        
+        req.on('error', (error) => {
+            console.error('Email error:', error);
+            reject(error);
+        });
+        
+        req.write(emailData);
+        req.end();
+    });
+}
+
+module.exports = async (req, res) => {
+    // CORS
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+    
+    if (req.method !== 'POST') {
+        return res.status(405).json({ message: 'Method not allowed' });
+    }
+    
+    try {
+        console.log('M-Pesa Callback received:', JSON.stringify(req.body, null, 2));
+        
+        const { Body } = req.body;
+        
+        if (!Body || !Body.stkCallback) {
+            console.log('Invalid callback structure');
+            return res.status(400).json({ message: 'Invalid callback data' });
+        }
+        
+        const { ResultCode, ResultDesc, CheckoutRequestID, CallbackMetadata } = Body.stkCallback;
+        
+        if (ResultCode === 0) {
+            // PAYMENT SUCCESSFUL
+            const metadata = {};
+            if (CallbackMetadata && CallbackMetadata.Item) {
+                CallbackMetadata.Item.forEach(item => {
+                    metadata[item.Name] = item.Value;
+                });
+            }
+            
+            const paymentDetails = {
+                checkoutRequestID: CheckoutRequestID,
+                amount: metadata.Amount,
+                mpesaReceiptNumber: metadata.MpesaReceiptNumber,
+                phoneNumber: metadata.PhoneNumber,
+                transactionDate: metadata.TransactionDate
+            };
+            
+            console.log('✅ PAYMENT SUCCESSFUL:', paymentDetails);
+            
+            // Get user email from CheckoutRequestID (stored in mpesa-payment.js)
+            // In production, retrieve from database
+            const userEmail = 'user@example.com'; // TODO: Get from database
+            
+            // Send success email
+            try {
+                await sendEmail(
+                    userEmail,
+                    '✅ Payment Successful - CryptoPro',
+                    `Your M-Pesa payment has been successfully received!
+
+Amount: KSh ${paymentDetails.amount}
+Receipt: ${paymentDetails.mpesaReceiptNumber}
+Date: ${new Date(paymentDetails.transactionDate).toLocaleString()}
+
+Your account has been credited with the equivalent USD amount.
+
+Thank you for using CryptoPro Trading!`
+                );
+            } catch (emailError) {
+                console.error('Failed to send email:', emailError);
+            }
+            
+            // TODO: Update database - credit user account
+            
+        } else {
+            // PAYMENT FAILED
+            console.log('❌ PAYMENT FAILED:', {
+                checkoutRequestID: CheckoutRequestID,
+                resultCode: ResultCode,
+                resultDesc: ResultDesc
+            });
+            
+            // TODO: Notify user of failure via email
+        }
+        
+        // Acknowledge receipt to M-Pesa
+        return res.status(200).json({ 
+            ResultCode: 0, 
+            ResultDesc: 'Accepted' 
+        });
+        
+    } catch (error) {
+        console.error('Callback error:', error);
+        return res.status(500).json({ 
+            ResultCode: 1, 
+            ResultDesc: 'Internal error' 
+        });
+    }
+};
