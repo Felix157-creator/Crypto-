@@ -1,0 +1,241 @@
+// api/mpesa-payment.js
+// SECURE BACKEND - All credentials hidden from users
+
+const https = require('https');
+
+// M-PESA CREDENTIALS (SECURE - NOT EXPOSED TO FRONTEND)
+const MPESA_CONFIG = {
+    CONSUMER_KEY: 'nnNJHMXFq6CmO6Uh6GFfFGm0oQWXhiJuLUaUgXJ8oAN1jrgT',
+    CONSUMER_SECRET: 'Asyp9CdsENgGnkghbwSr9zPxvhzeVvm8HBKNeyTdeGiZM8dh9Kwm1Oz0dQa2AXCA',
+    BUSINESS_SHORT_CODE: '174379',
+    PASSKEY: 'bfb279f9aa9bdbcf158e97dd71a467cd2e0afc10e8bdc26ac62d736f825a1e60',
+    PAYBILL: '174379',
+    BUY_GOODS: '7500474',
+    API_URL: 'sandbox.safaricom.co.ke' // Change to 'api.safaricom.co.ke' for production
+};
+
+// EMAIL CREDENTIALS (SECURE)
+const EMAIL_CONFIG = {
+    SERVICE_ID: 'service_p61trhq',
+    TEMPLATE_ID: 'template_14jwbju',
+    PUBLIC_KEY: 'wbl3XpIjAm_87c4Nl',
+    PRIVATE_KEY: 'ZQ5HwvJhuZ8C1veOR8B_I'
+};
+
+// CRYPTO WALLET (SECURE)
+const CRYPTO_WALLET = {
+    USDT_TRC20: 'TK4rUz6TUEd7zCWeuiX5R47pSNdPswJnAc'
+};
+
+// BANK DETAILS (SECURE)
+const BANK_CONFIG = {
+    BANK_NAME: 'Equity Bank',
+    ACCOUNT_NUMBER: '0310184912429',
+    ACCOUNT_NAME: 'CryptoPro Trading'
+};
+
+// In-memory payment tracking (use database in production)
+const payments = new Map();
+
+// Get M-Pesa Access Token
+function getMpesaToken() {
+    return new Promise((resolve, reject) => {
+        const auth = Buffer.from(`${MPESA_CONFIG.CONSUMER_KEY}:${MPESA_CONFIG.CONSUMER_SECRET}`).toString('base64');
+        
+        const options = {
+            hostname: MPESA_CONFIG.API_URL,
+            path: '/oauth/v1/generate?grant_type=client_credentials',
+            method: 'GET',
+            headers: {
+                'Authorization': `Basic ${auth}`
+            }
+        };
+        
+        const req = https.request(options, (res) => {
+            let data = '';
+            res.on('data', (chunk) => data += chunk);
+            res.on('end', () => {
+                try {
+                    const response = JSON.parse(data);
+                    resolve(response.access_token);
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        });
+        
+        req.on('error', reject);
+        req.end();
+    });
+}
+
+// Initiate STK Push
+function stkPush(accessToken, phoneNumber, amount, callbackUrl, email) {
+    return new Promise((resolve, reject) => {
+        const timestamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, -3);
+        const password = Buffer.from(
+            `${MPESA_CONFIG.BUSINESS_SHORT_CODE}${MPESA_CONFIG.PASSKEY}${timestamp}`
+        ).toString('base64');
+        
+        const payload = JSON.stringify({
+            BusinessShortCode: MPESA_CONFIG.BUSINESS_SHORT_CODE,
+            Password: password,
+            Timestamp: timestamp,
+            TransactionType: 'CustomerPayBillOnline',
+            Amount: Math.ceil(amount),
+            PartyA: phoneNumber,
+            PartyB: MPESA_CONFIG.BUSINESS_SHORT_CODE,
+            PhoneNumber: phoneNumber,
+            CallBackURL: callbackUrl,
+            AccountReference: email,
+            TransactionDesc: 'CryptoPro Deposit'
+        });
+        
+        const options = {
+            hostname: MPESA_CONFIG.API_URL,
+            path: '/mpesa/stkpush/v1/processrequest',
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+                'Content-Length': payload.length
+            }
+        };
+        
+        const req = https.request(options, (res) => {
+            let data = '';
+            res.on('data', (chunk) => data += chunk);
+            res.on('end', () => {
+                try {
+                    const response = JSON.parse(data);
+                    resolve(response);
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        });
+        
+        req.on('error', reject);
+        req.write(payload);
+        req.end();
+    });
+}
+
+// Send Email Notification
+async function sendEmail(to, subject, message) {
+    // Using EmailJS
+    try {
+        const emailData = {
+            service_id: EMAIL_CONFIG.SERVICE_ID,
+            template_id: EMAIL_CONFIG.TEMPLATE_ID,
+            user_id: EMAIL_CONFIG.PUBLIC_KEY,
+            accessToken: EMAIL_CONFIG.PRIVATE_KEY,
+            template_params: {
+                to_email: to,
+                subject: subject,
+                message: message
+            }
+        };
+        
+        // Note: In production, implement proper EmailJS REST API call
+        console.log('Email would be sent:', emailData);
+    } catch (error) {
+        console.error('Email error:', error);
+    }
+}
+
+// Main Handler
+module.exports = async (req, res) => {
+    // CORS
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+    
+    if (req.method !== 'POST') {
+        return res.status(405).json({ success: false, message: 'Method not allowed' });
+    }
+    
+    try {
+        const { phoneNumber, amount, email } = req.body;
+        
+        // Validation
+        if (!phoneNumber || !amount || !email) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Missing required fields' 
+            });
+        }
+        
+        if (!/^254[0-9]{9}$/.test(phoneNumber)) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Invalid phone number format' 
+            });
+        }
+        
+        if (amount < 1) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Amount must be at least KSh 1' 
+            });
+        }
+        
+        // Callback URL
+        const callbackUrl = `https://${req.headers.host}/api/mpesa-callback`;
+        
+        console.log('Processing M-Pesa payment:', {
+            phone: phoneNumber,
+            amount: amount,
+            email: email,
+            callback: callbackUrl
+        });
+        
+        // Step 1: Get access token
+        const accessToken = await getMpesaToken();
+        
+        // Step 2: Initiate STK Push
+        const stkResponse = await stkPush(accessToken, phoneNumber, amount, callbackUrl, email);
+        
+        if (stkResponse.ResponseCode === '0') {
+            // Store payment info
+            payments.set(stkResponse.CheckoutRequestID, {
+                email: email,
+                phone: phoneNumber,
+                amount: amount,
+                status: 'pending',
+                timestamp: new Date().toISOString()
+            });
+            
+            // Send email notification
+            await sendEmail(
+                email,
+                'M-Pesa Payment Initiated',
+                `Your M-Pesa payment of KSh ${amount} has been initiated. Check your phone for the prompt.`
+            );
+            
+            return res.status(200).json({
+                success: true,
+                message: 'STK Push sent successfully',
+                checkoutRequestID: stkResponse.CheckoutRequestID,
+                merchantRequestID: stkResponse.MerchantRequestID
+            });
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: stkResponse.ResponseDescription || 'Failed to initiate payment'
+            });
+        }
+        
+    } catch (error) {
+        console.error('M-Pesa API error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+};
