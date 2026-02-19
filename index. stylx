@@ -1,0 +1,2819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoPro - Professional Crypto Trading Platform</title>
+    <!-- EmailJS SDK for admin registration notifications -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        // Initialize EmailJS — replace with your public key from emailjs.com
+        (function() { if(typeof emailjs !== 'undefined') emailjs.init('YOUR_EMAILJS_PUBLIC_KEY'); })();
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-primary: #0B0E11;
+            --bg-secondary: #161A1E;
+            --bg-tertiary: #1E2329;
+            --border-color: #2B3139;
+            --text-primary: #EAECEF;
+            --text-secondary: #848E9C;
+            --accent-green: #0ECB81;
+            --accent-red: #F6465D;
+            --accent-yellow: #FCD535;
+            --accent-blue: #00d9ff;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .layer { display: none; min-height: 100vh; animation: fadeIn 0.5s ease-out; }
+        .layer.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.05); } }
+        @keyframes slideIn { from { transform: translateY(-100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideLeft { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        @keyframes currencyPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        @keyframes typingDot { 0%, 60%, 100% { transform: translateY(0); opacity: 0.5; } 30% { transform: translateY(-6px); opacity: 1; } }
+
+        .referral-success-banner {
+            position: fixed; top: 0; left: 0; right: 0;
+            background: linear-gradient(135deg, #0ECB81, #0B8F5F);
+            padding: 20px; text-align: center; z-index: 9999;
+            box-shadow: 0 4px 20px rgba(14, 203, 129, 0.4);
+            animation: slideIn 0.5s ease-out; display: none;
+        }
+        .referral-success-banner.show { display: block; }
+        .referral-success-content h2 { font-size: 28px; margin-bottom: 8px; color: #fff; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .referral-success-content p { font-size: 16px; color: rgba(255,255,255,0.95); margin-bottom: 12px; line-height: 1.6; }
+        .bonus-highlight { display: inline-block; font-size: 42px; font-weight: 900; color: #FCD535; text-shadow: 2px 2px 8px rgba(0,0,0,0.3); margin: 12px 0; animation: pulse 2s infinite; }
+        .close-banner { position: absolute; top: 10px; right: 20px; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 24px; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; transition: all 0.3s; }
+        .close-banner:hover { background: rgba(255,255,255,0.3); transform: rotate(90deg); }
+
+        .navbar { background: var(--bg-secondary); backdrop-filter: blur(10px); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--border-color); }
+        .logo { display: flex; align-items: center; gap: 12px; font-size: 24px; font-weight: 700; color: var(--accent-green); cursor: pointer; }
+        .logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, var(--accent-green), #0B8F5F); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .nav-links { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+        .nav-btn { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; font-size: 14px; }
+        .btn-login { background: transparent; color: var(--accent-blue); border: 2px solid var(--accent-blue); }
+        .btn-signup { background: linear-gradient(135deg, var(--accent-green), #0B8F5F); color: #fff; border: none; }
+        .btn-signup:hover, .btn-login:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(14, 203, 129, 0.4); }
+
+        .status-badge { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(14, 203, 129, 0.1); border-radius: 20px; font-size: 12px; font-weight: 600; color: var(--accent-green); }
+        .status-dot { width: 6px; height: 6px; background: var(--accent-green); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+
+        .container { max-width: 1920px; margin: 0 auto; padding: 20px; }
+
+        .hero-section { background: linear-gradient(135deg, rgba(14,203,129,0.1), rgba(0,217,255,0.1)); border: 2px solid var(--accent-green); border-radius: 16px; padding: 40px; margin-bottom: 20px; text-align: center; }
+        .hero-section h1 { font-size: 48px; background: linear-gradient(135deg, var(--accent-green), var(--accent-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 16px; }
+        .hero-section p { font-size: 18px; color: var(--text-primary); margin-bottom: 24px; line-height: 1.6; }
+        .hero-cta { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+        .hero-btn { padding: 16px 32px; border: none; border-radius: 12px; font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .hero-btn-primary { background: linear-gradient(135deg, var(--accent-green), #0B8F5F); color: #fff; }
+        .hero-btn-secondary { background: transparent; color: var(--accent-blue); border: 2px solid var(--accent-blue); }
+        .hero-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(14, 203, 129, 0.4); }
+
+        .live-traders-section { background: var(--bg-secondary); border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border-color); overflow: hidden; }
+        .live-traders-title { text-align: center; color: var(--accent-green); font-size: 18px; font-weight: 700; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px; }
+        .ticker-wrapper { overflow: hidden; position: relative; }
+        .ticker-content { display: flex; animation: slideLeft 90s linear infinite; white-space: nowrap; }
+        .trader-card { display: inline-flex; align-items: center; gap: 12px; padding: 12px 20px; background: var(--bg-tertiary); border-radius: 12px; margin-right: 16px; border: 1px solid var(--border-color); min-width: 250px; }
+        .trader-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-green), var(--accent-blue)); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .trader-info { flex: 1; }
+        .trader-name { font-weight: 600; color: var(--text-primary); font-size: 14px; }
+        .trader-profit { font-weight: 700; color: var(--accent-green); font-size: 16px; }
+
+        .top-winners-section { background: var(--bg-secondary); border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border-color); }
+        .top-winners-title { color: var(--accent-green); font-size: 18px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .winners-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+        .winner-card { background: var(--bg-tertiary); border-radius: 12px; padding: 20px; border: 2px solid var(--border-color); transition: all 0.3s; position: relative; overflow: hidden; }
+        .winner-card:hover { border-color: var(--accent-green); transform: translateY(-5px); box-shadow: 0 8px 25px rgba(14, 203, 129, 0.3); }
+        .winner-rank { position: absolute; top: 10px; right: 10px; width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent-yellow), #f59e0b); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #000; font-size: 16px; }
+        .winner-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .winner-avatar-large { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-green), var(--accent-blue)); display: flex; align-items: center; justify-content: center; font-size: 28px; }
+        .winner-details h4 { font-size: 18px; color: var(--text-primary); margin-bottom: 4px; }
+        .winner-location { font-size: 12px; color: var(--text-secondary); }
+        .winner-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .winner-stat { background: rgba(14, 203, 129, 0.1); padding: 12px; border-radius: 8px; text-align: center; }
+        .winner-stat-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+        .winner-stat-value { font-size: 20px; font-weight: 700; color: var(--accent-green); }
+
+        .stats-section { background: var(--bg-secondary); border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border-color); }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+        .stat-card { background: var(--bg-tertiary); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; cursor: pointer; transition: all 0.3s; }
+        .stat-card:hover { border-color: var(--accent-green); transform: translateY(-3px); box-shadow: 0 5px 20px rgba(14, 203, 129, 0.2); }
+        .stat-icon { font-size: 36px; margin-bottom: 12px; }
+        .stat-value { font-size: 32px; font-weight: 700; color: var(--accent-green); margin-bottom: 8px; }
+        .stat-label { font-size: 14px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .chart-section { background: var(--bg-secondary); border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border-color); }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+        .chart-title { font-size: 18px; font-weight: 600; color: var(--accent-green); }
+        .chart-wrapper { position: relative; width: 100%; height: 400px; background: var(--bg-primary); border-radius: 8px; padding: 20px; border: 1px solid var(--border-color); }
+        .chart-wrapper.small { height: 200px; }
+        canvas { width: 100%; height: 100%; display: block; }
+
+        .price-info { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: var(--bg-tertiary); border-radius: 8px; margin-bottom: 16px; }
+        .current-price { font-size: 32px; font-weight: 900; color: var(--accent-green); }
+        .price-change { font-size: 18px; font-weight: 700; padding: 8px 16px; border-radius: 8px; }
+        .price-change.positive { background: rgba(14, 203, 129, 0.2); color: var(--accent-green); }
+        .price-change.negative { background: rgba(246, 70, 93, 0.2); color: var(--accent-red); }
+
+        .auth-container { max-width: 480px; margin: 80px auto; padding: 40px; background: var(--bg-secondary); border-radius: 24px; box-shadow: 0 8px 32px rgba(0,0,0,0.6); border: 1px solid var(--border-color); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; color: var(--text-primary); }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 14px 16px; border: 2px solid var(--border-color); border-radius: 12px; background: var(--bg-tertiary); color: var(--text-primary); font-size: 16px; transition: all 0.3s; font-family: inherit; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--accent-green); box-shadow: 0 0 0 3px rgba(14, 203, 129, 0.1); }
+        .btn-submit { width: 100%; padding: 16px; border: none; border-radius: 12px; background: linear-gradient(135deg, var(--accent-green), #0B8F5F); color: #fff; font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.3s; margin-top: 10px; }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(14, 203, 129, 0.4); }
+
+        .action-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .action-btn { padding: 20px; border: none; border-radius: 16px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-align: center; }
+        .action-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
+        .btn-trade { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; }
+        .btn-deposit { background: linear-gradient(135deg, var(--accent-green), #0B8F5F); color: #fff; }
+        .btn-reviews { background: linear-gradient(135deg, var(--accent-yellow), #f59e0b); color: #000; }
+
+        .payment-method-selector { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+        .payment-method-btn { padding: 20px 16px; border: 2px solid var(--border-color); border-radius: 12px; background: var(--bg-tertiary); color: var(--text-primary); cursor: pointer; transition: all 0.3s; text-align: center; font-weight: 600; font-size: 15px; }
+        .payment-method-btn.active { border-color: var(--accent-green); background: rgba(14, 203, 129, 0.2); font-weight: 700; }
+        .payment-method-btn:hover { border-color: var(--accent-green); }
+
+        .payment-details { background: rgba(14, 203, 129, 0.1); border: 2px solid rgba(14, 203, 129, 0.3); border-radius: 12px; padding: 20px; margin: 16px 0; display: none; }
+        .payment-details.active { display: block; }
+        .payment-info { background: rgba(0,0,0,0.3); padding: 16px; border-radius: 8px; margin: 12px 0; }
+        .payment-value { font-size: 18px; font-weight: 700; color: var(--accent-green); font-family: 'Monaco', 'Courier New', monospace; word-break: break-all; }
+        .copy-btn { width: 100%; background: linear-gradient(135deg, var(--accent-blue), #0099cc); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 8px; transition: all 0.3s; }
+        .copy-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 217, 255, 0.4); }
+
+        .whatsapp-support { position: fixed; bottom: 20px; left: 20px; z-index: 1000; }
+        .whatsapp-btn { display: flex; align-items: center; gap: 12px; background: linear-gradient(135deg, #25D366, #128C7E); color: white; padding: 16px 24px; border-radius: 50px; text-decoration: none; font-weight: 600; box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4); transition: all 0.3s; }
+        .whatsapp-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(37, 211, 102, 0.6); }
+
+        .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; display: none; }
+        .alert.show { display: block; }
+        .alert-success { background: rgba(14, 203, 129, 0.1); border: 1px solid rgba(14, 203, 129, 0.3); color: var(--accent-green); }
+        .alert-error { background: rgba(246, 70, 93, 0.1); border: 1px solid rgba(246, 70, 93, 0.3); color: var(--accent-red); }
+
+        .toast-notification { position: fixed; top: 80px; right: 20px; background: linear-gradient(135deg, var(--accent-green), #0B8F5F); color: white; padding: 16px 24px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); z-index: 10000; animation: slideIn 0.5s; max-width: 350px; display: none; white-space: pre-line; }
+        .toast-notification.show { display: block; }
+
+        #currencyConverter { animation: slideIn 0.5s ease-out; }
+        .currency-amount { transition: all 0.3s ease; }
+        .currency-amount:hover { transform: scale(1.05); }
+        .exchange-rate-live { animation: currencyPulse 2s infinite; }
+
+        #aiMessages::-webkit-scrollbar { width: 4px; }
+        #aiMessages::-webkit-scrollbar-track { background: transparent; }
+        #aiMessages::-webkit-scrollbar-thumb { background: rgba(102,126,234,0.4); border-radius: 2px; }
+        #quickQuestionsBar::-webkit-scrollbar { display: none; }
+
+        @media (max-width: 768px) {
+            .container { padding: 12px; }
+            .hero-section h1 { font-size: 32px; }
+            .nav-links { gap: 10px; }
+            .nav-btn { padding: 8px 16px; font-size: 12px; }
+            .payment-method-selector { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="toastNotification" class="toast-notification"></div>
+
+<div id="referralSuccessBanner" class="referral-success-banner">
+    <button class="close-banner" onclick="closeReferralBanner()">×</button>
+    <div class="referral-success-content">
+        <h2>🎉 CONGRATULATIONS! 🎉</h2>
+        <p><strong id="referrerName">Your friend</strong> has been crushing it with CryptoPro!</p>
+        <p>They're making <strong>consistent daily profits</strong> with our AI-powered trading bots.</p>
+        <div class="bonus-highlight">GET $25 BONUS!</div>
+        <p style="font-size:18px;margin-top:12px;">
+            ✅ Sign up now and receive <strong>$25 instant bonus</strong><br>
+            ✅ 100% withdrawable after verification<br>
+            ✅ Start trading with real profits from day one!
+        </p>
+    </div>
+</div>
+
+<!-- LAYER 1: Welcome Page -->
+<div id="welcomeLayer" class="layer active">
+    <nav class="navbar">
+        <div class="logo" onclick="showLayer('welcomeLayer')">
+            <div class="logo-icon">₿</div>
+            <span>CryptoPro</span>
+        </div>
+        <div class="nav-links">
+            <button class="nav-btn btn-login" onclick="showLayer('loginLayer')">Login</button>
+            <button class="nav-btn btn-signup" onclick="showLayer('signupLayer')">Sign Up</button>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="hero-section">
+            <h1>🚀 The Future of Crypto Trading</h1>
+            <p>Join 50,000+ successful traders earning daily profits with AI-powered automation. Get started with a <strong>$25 signup bonus</strong> and experience professional trading today!</p>
+            <div class="hero-cta">
+                <button class="hero-btn hero-btn-primary" onclick="showLayer('signupLayer')">Get Started - Free $25 Bonus</button>
+                <button class="hero-btn hero-btn-secondary" onclick="showLayer('chartsLayer')">View Live Charts</button>
+            </div>
+        </div>
+        <div class="live-traders-section">
+            <div class="live-traders-title">🔥 LIVE ACTIVE TRADERS - REAL-TIME PROFITS 🔥</div>
+            <div class="ticker-wrapper">
+                <div class="ticker-content" id="liveTradersTicker"></div>
+            </div>
+        </div>
+        <div class="top-winners-section">
+            <div class="top-winners-title">🏆 Top Traders This Week</div>
+            <div class="winners-grid" id="topWinnersGrid"></div>
+        </div>
+        <div class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value">50,000+</div><div class="stat-label">Active Traders</div></div>
+                <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-value">$125M+</div><div class="stat-label">Total Profits Paid</div></div>
+                <div class="stat-card"><div class="stat-icon">📈</div><div class="stat-value">98.5%</div><div class="stat-label">Success Rate</div></div>
+                <div class="stat-card"><div class="stat-icon">⚡</div><div class="stat-value">15,000+</div><div class="stat-label">Daily Trades</div></div>
+            </div>
+        </div>
+        <div class="action-buttons">
+            <button class="action-btn btn-reviews" onclick="showLayer('reviewsLayer')">⭐ See Reviews</button>
+            <button class="action-btn btn-trade" onclick="showLayer('signupLayer')">📊 Start Trading</button>
+        </div>
+    </div>
+    <div class="whatsapp-support">
+        <a href="https://wa.me/254759401893" class="whatsapp-btn" target="_blank">
+            <span style="font-size:28px;">💬</span><span>Support</span>
+        </a>
+    </div>
+</div>
+<!-- ============================================================
+     CRYPTOPRO - CONTINUATION FROM PART 1
+     Paste this AFTER the closing </div> of welcomeLayer
+     and BEFORE the closing </body> tag
+     ============================================================ -->
+
+<!-- LAYER 2: Login -->
+<div id="loginLayer" class="layer">
+    <nav class="navbar">
+        <div class="logo" onclick="showLayer('welcomeLayer')">
+            <div class="logo-icon">₿</div>
+            <span>CryptoPro</span>
+        </div>
+        <div class="nav-links">
+            <button class="nav-btn btn-signup" onclick="showLayer('signupLayer')">Sign Up</button>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="auth-container">
+            <h2 style="font-size:28px; font-weight:700; margin-bottom:8px; text-align:center;">Welcome Back</h2>
+            <p style="color:var(--text-secondary); text-align:center; margin-bottom:24px;">Login to your CryptoPro account</p>
+            <div id="loginAlert" class="alert"></div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="loginEmail" placeholder="you@example.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" placeholder="Enter your password">
+            </div>
+            <button class="btn-submit" onclick="handleLogin()">Login to Account</button>
+            <p style="text-align:center; margin-top:16px; color:var(--text-secondary);">
+                Don't have an account?
+                <a href="#" onclick="showLayer('signupLayer')" style="color:var(--accent-green); font-weight:600;">Sign Up Free</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- LAYER 3: Signup -->
+<div id="signupLayer" class="layer">
+    <nav class="navbar">
+        <div class="logo" onclick="showLayer('welcomeLayer')">
+            <div class="logo-icon">₿</div>
+            <span>CryptoPro</span>
+        </div>
+        <div class="nav-links">
+            <button class="nav-btn btn-login" onclick="showLayer('loginLayer')">Login</button>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="auth-container">
+            <h2 style="font-size:28px; font-weight:700; margin-bottom:8px; text-align:center;">🎉 Create Account</h2>
+            <p style="color:var(--text-secondary); text-align:center; margin-bottom:24px;">Get your <strong style="color:var(--accent-green);">$25 signup bonus</strong> instantly</p>
+            <div id="signupAlert" class="alert"></div>
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="signupName" placeholder="John Doe">
+            </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="signupEmail" placeholder="you@example.com">
+            </div>
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" id="signupPhone" placeholder="+1 234 567 8900">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="signupPassword" placeholder="Create a strong password">
+            </div>
+            <div class="form-group">
+                <label>Referral Code (Optional)</label>
+                <input type="text" id="signupReferral" placeholder="Enter referral code">
+            </div>
+            <button class="btn-submit" onclick="handleSignup()">Create Account & Claim $25 Bonus</button>
+            <p style="text-align:center; margin-top:16px; color:var(--text-secondary);">
+                Already have an account?
+                <a href="#" onclick="showLayer('loginLayer')" style="color:var(--accent-green); font-weight:600;">Login Here</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- LAYER 4: Dashboard -->
+<div id="dashboardLayer" class="layer">
+    <nav class="navbar">
+        <div class="logo" onclick="showLayer('dashboardLayer')">
+            <div class="logo-icon">₿</div>
+            <span>CryptoPro</span>
+        </div>
+        <div class="nav-links">
+            <div class="status-badge"><div class="status-dot"></div><span id="navUserName">Trader</span></div>
+            <div id="accountTypeBadge" style="padding:6px 12px;border-radius:20px;font-size:12px;font-weight:700;background:rgba(14,203,129,0.1);color:var(--accent-green);border:1px solid rgba(14,203,129,0.3);">💰 REAL</div>
+            <button class="nav-btn btn-login" onclick="showLayer('chartsLayer')">📊 Charts</button>
+            <button class="nav-btn btn-signup" onclick="handleLogout()">Logout</button>
+        </div>
+    </nav>
+    <div class="container">
+        <!-- Demo Mode Banner -->
+        <div id="demoBanner" style="display:none;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:12px;padding:14px 20px;margin-bottom:16px;display:none;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-size:24px;">🎮</span>
+                <div>
+                    <strong style="color:#000;font-size:16px;">DEMO ACCOUNT MODE</strong>
+                    <p style="color:rgba(0,0,0,0.7);font-size:12px;margin:0;">Virtual money only — No real profits or withdrawals</p>
+                </div>
+            </div>
+            <button onclick="showUpgradeModal()" style="background:#000;color:#FCD535;border:none;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px;">⬆ Upgrade to Real Account</button>
+        </div>
+
+        <!-- Balance Card -->
+        <div id="balanceCard" style="background:linear-gradient(135deg,#0ECB81,#0B8F5F); border-radius:16px; padding:32px; margin-bottom:20px; position:relative; overflow:hidden;">
+            <div style="position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:rgba(255,255,255,0.08);border-radius:50%;"></div>
+            <p style="color:rgba(255,255,255,0.8); font-size:14px; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">Total Portfolio Balance</p>
+            <div style="font-size:52px; font-weight:900; color:#fff; margin-bottom:4px;" id="dashBalance">$0.00</div>
+            <div style="display:flex; gap:24px; margin-top:16px; flex-wrap:wrap;">
+                <div>
+                    <p style="color:rgba(255,255,255,0.7); font-size:12px;">Today's Profit</p>
+                    <p style="color:#FCD535; font-weight:700; font-size:18px;" id="dashDailyProfit">+$0.00</p>
+                </div>
+                <div>
+                    <p style="color:rgba(255,255,255,0.7); font-size:12px;">Total Deposited</p>
+                    <p style="color:#fff; font-weight:700; font-size:18px;" id="dashDeposited">$0.00</p>
+                </div>
+                <div>
+                    <p style="color:rgba(255,255,255,0.7); font-size:12px;">Referral Bonus</p>
+                    <p style="color:#FCD535; font-weight:700; font-size:18px;" id="dashReferralBonus">$0.00</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="action-buttons">
+            <button class="action-btn btn-deposit" onclick="showLayer('depositLayer')">💰 Deposit Funds</button>
+            <button class="action-btn btn-trade" onclick="showLayer('withdrawLayer')">💸 Withdraw</button>
+            <button class="action-btn" style="background:linear-gradient(135deg,var(--accent-blue),#0099cc);color:#fff;" onclick="showLayer('referralLayer')">🔗 Refer & Earn</button>
+            <button class="action-btn btn-reviews" onclick="showLayer('chartsLayer')">📈 Live Charts</button>
+        </div>
+
+        <!-- Active Plans -->
+        <div style="background:var(--bg-secondary); border-radius:12px; padding:20px; margin-bottom:20px; border:1px solid var(--border-color);">
+            <h3 style="color:var(--accent-green); margin-bottom:16px; font-size:18px;">⚡ Investment Plans</h3>
+            <div id="investmentPlans" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px;"></div>
+        </div>
+
+        <!-- Transaction History -->
+        <div style="background:var(--bg-secondary); border-radius:12px; padding:20px; margin-bottom:20px; border:1px solid var(--border-color);">
+            <h3 style="color:var(--accent-green); margin-bottom:16px; font-size:18px;">📋 Recent Transactions</h3>
+            <div id="transactionHistory"></div>
+        </div>
+
+        <!-- Currency Converter -->
+        <div id="currencyConverter" style="background:var(--bg-secondary); border-radius:12px; padding:24px; margin-bottom:20px; border:1px solid var(--border-color);">
+            <h3 style="color:var(--accent-green); margin-bottom:4px; font-size:18px;">💱 Live Currency Converter</h3>
+            <p class="exchange-rate-live" style="color:var(--text-secondary); font-size:12px; margin-bottom:20px;">● Live rates updating every 30 seconds</p>
+            <div style="display:grid; grid-template-columns:1fr auto 1fr; gap:16px; align-items:end;">
+                <div>
+                    <label style="font-size:12px; color:var(--text-secondary); display:block; margin-bottom:6px;">Amount</label>
+                    <input type="number" id="convertAmount" value="100" oninput="convertCurrency()" style="width:100%;padding:12px;border:2px solid var(--border-color);border-radius:8px;background:var(--bg-tertiary);color:var(--text-primary);font-size:16px;">
+                </div>
+                <div style="text-align:center;">
+                    <div style="font-size:28px; margin-bottom:8px; cursor:pointer;" onclick="swapCurrencies()">⇄</div>
+                </div>
+                <div>
+                    <label style="font-size:12px; color:var(--text-secondary); display:block; margin-bottom:6px;">To</label>
+                    <select id="toCurrency" onchange="convertCurrency()" style="width:100%;padding:12px;border:2px solid var(--border-color);border-radius:8px;background:var(--bg-tertiary);color:var(--text-primary);font-size:16px;">
+                        <option value="BTC">BTC - Bitcoin</option>
+                        <option value="ETH">ETH - Ethereum</option>
+                        <option value="USDT">USDT - Tether</option>
+                        <option value="KES">KES - Kenyan Shilling</option>
+                        <option value="NGN">NGN - Nigerian Naira</option>
+                        <option value="GHS">GHS - Ghanaian Cedi</option>
+                        <option value="ZAR">ZAR - South African Rand</option>
+                        <option value="GBP">GBP - British Pound</option>
+                        <option value="EUR">EUR - Euro</option>
+                    </select>
+                </div>
+            </div>
+            <div style="background:rgba(14,203,129,0.1); border:2px solid rgba(14,203,129,0.3); border-radius:12px; padding:20px; margin-top:16px; text-align:center;">
+                <p style="color:var(--text-secondary); font-size:14px; margin-bottom:8px;">Converted Amount</p>
+                <div class="currency-amount" style="font-size:36px; font-weight:900; color:var(--accent-green);" id="convertResult">--</div>
+                <p style="color:var(--text-secondary); font-size:12px; margin-top:8px;" id="convertRate">Select currency to convert</p>
+            </div>
+        </div>
+
+        <!-- AI Trading Assistant -->
+        <div style="background:var(--bg-secondary); border-radius:12px; padding:24px; margin-bottom:20px; border:1px solid var(--border-color);">
+            <h3 style="color:var(--accent-blue); margin-bottom:4px; font-size:18px;">🤖 AI Trading Assistant</h3>
+            <p style="color:var(--text-secondary); font-size:13px; margin-bottom:16px;">Powered by advanced market analysis</p>
+            <div id="aiMessages" style="height:300px; overflow-y:auto; background:var(--bg-primary); border-radius:8px; padding:16px; margin-bottom:12px; border:1px solid var(--border-color);"></div>
+            <div id="quickQuestionsBar" style="display:flex; gap:8px; overflow-x:auto; padding-bottom:8px; margin-bottom:12px;">
+                <button onclick="askAI('What should I invest in today?')" style="white-space:nowrap; padding:8px 14px; background:var(--bg-tertiary); border:1px solid var(--border-color); border-radius:20px; color:var(--text-primary); cursor:pointer; font-size:12px;">💡 Best investment today?</button>
+                <button onclick="askAI('What is the current BTC trend?')" style="white-space:nowrap; padding:8px 14px; background:var(--bg-tertiary); border:1px solid var(--border-color); border-radius:20px; color:var(--text-primary); cursor:pointer; font-size:12px;">📈 BTC trend?</button>
+                <button onclick="askAI('How do I maximize my profits?')" style="white-space:nowrap; padding:8px 14px; background:var(--bg-tertiary); border:1px solid var(--border-color); border-radius:20px; color:var(--text-primary); cursor:pointer; font-size:12px;">💰 Maximize profits?</button>
+                <button onclick="askAI('Is it safe to trade now?')" style="white-space:nowrap; padding:8px 14px; background:var(--bg-tertiary); border:1px solid var(--border-color); border-radius:20px; color:var(--text-primary); cursor:pointer; font-size:12px;">🛡️ Safe to trade?</button>
+                <button onclick="askAI('What are the best crypto pairs to trade?')" style="white-space:nowrap; padding:8px 14px; background:var(--bg-tertiary); border:1px solid var(--border-color); border-radius:20px; color:var(--text-primary); cursor:pointer; font-size:12px;">🔄 Best pairs?</button>
+            </div>
+            <div style="display:flex; gap:8px;">
+                <input type="text" id="aiInput" placeholder="Ask me anything about trading..." onkeypress="if(event.key==='Enter') askAI()"
+                    style="flex:1; padding:12px 16px; border:2px solid var(--border-color); border-radius:8px; background:var(--bg-tertiary); color:var(--text-primary); font-size:14px;">
+                <button onclick="askAI()" style="padding:12px 20px; background:linear-gradient(135deg,var(--accent-blue),#0099cc); border:none; border-radius:8px; color:#fff; font-weight:600; cursor:pointer;">Send</button>
+            </div>
+            <div style="margin-top:12px; background:rgba(37,211,102,0.1); border:1px solid rgba(37,211,102,0.3); border-radius:10px; padding:14px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:28px;">💬</span>
+                    <div>
+                        <div style="font-weight:700; font-size:14px; color:#25D366;">Need Human Support?</div>
+                        <div style="font-size:12px; color:var(--text-secondary);">Chat directly with our team on WhatsApp</div>
+                    </div>
+                </div>
+                <a href="https://wa.me/254759401893" target="_blank"
+                   style="display:inline-flex; align-items:center; gap:8px; background:linear-gradient(135deg,#25D366,#128C7E); color:#fff; padding:10px 20px; border-radius:8px; font-weight:700; text-decoration:none; font-size:14px; transition:all 0.3s;">
+                    <span>💬</span> Chat on WhatsApp
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="whatsapp-support">
+        <a href="https://wa.me/254759401893" class="whatsapp-btn" target="_blank">
+            <span style="font-size:28px;">💬</span>
+            <span>Support</span>
+        </a>
+    </div>
+</div>
+
+<!-- LAYER 5: Deposit -->
+<div id="depositLayer" class="layer">
+    <nav class="navbar">
+        <div class="logo" onclick="showLayer('dashboardLayer')">
+            <div class="logo-icon">₿</div>
+            <span>CryptoPro</span>
+        </div>
+        <div class="nav-links">
+            <button class="nav-btn btn-login" onclick="showLayer('dashboardLayer')">← Back</button>
+        </div>
+    </nav>
+    <div class="container">
+        <div style="max-width:600px; margin:0 auto;">
+            <h2 style="font-size:28px; font-weight:700; margin-bottom:8px; color:var(--accent-green);">💰 Deposit Funds</h2>
+            <p style="color:var(--text-secondary); margin-bottom:24px;">Choose your preferred payment method below</p>
+
+            <!-- Plan Selector -->
+            <div style="background:var(--bg-secondary); border-radius:12px; padding:20px; margin-bottom:20px; border:1px solid var(--border-color);">
+                <h3 style="margin-bottom:16px; color:var(--text-primary);">Select Investment Plan</h3>
+                <div id="planSelector" style="display:grid; gap:12px;"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Deposit Amount (USD)</label>
+                <input type="number" id="depositAmount" placeholder="Minimum $10" min="10" oninput="updateDepositDisplay()">
+            </div>
+
+            <div id="depositAlerts" class="alert"></div>
+
+            <h3 style="margin-bottom:16px; color:var(--text-primary);">Choose Payment Method</h3>
+            <div class="payment-method-selector">
+                <button class="payment-method-btn" onclick="selectPayment('mpesa')">📱 M-PESA</button>
+                <button class="payment-method-btn" onclick="selectPayment('bitcoin')">₿ Bitcoin</button>
+                <button class="payment-method-btn" onclick="selectPayment('ethereum')">⟠ Ethereum</button>
+                <button class="payment-method-btn" onclick="selectPayment('usdt')">💵 USDT (TRC20)</button>
+            </div>
+
+            <!-- M-PESA Details -->
+            <div id="mpesaDetails" class="payment-details">
+                <h4 style="color:var(--accent-green); margin-bottom:12px;">📱 M-PESA Payment Instructions</h4>
+                <div style="background:rgba(0,0,0,0.3); padding:16px; border-radius:8px; margin-bottom:12px;">
+                    <p style="color:var(--text-secondary); font-size:13px; margin-bottom:12px;">Follow these steps:</p>
+                    <ol style="color:var(--text-primary); font-size:14px; line-height:2; padding-left:20px;">
+                        <li>Go to <strong>M-PESA</strong> on your phone</li>
+                        <li>Select <strong>Lipa na M-PESA</strong></li>
+                        <li>Select <strong>Send Money</strong></li>
+                        <li>Enter number: <strong style="color:var(--accent-green);">0759 401 893</strong></li>
+                        <li>Enter Amount: <strong style="color:var(--accent-yellow);" id="mpesaAmount">$0 (KES 0)</strong></li>
+                        <li>Enter your M-PESA PIN and confirm</li>
+                    </ol>
+                </div>
+                <div class="payment-info">
+                    <p style="color:var(--text-secondary); font-size:12px; margin-bottom:4px;">M-PESA Number</p>
+                    <div class="payment-value">0759 401 893</div>
+                    <button class="copy-btn" onclick="copyToClipboard('0759401893', 'M-PESA number')">📋 Copy Number</button>
+                </div>
+                <button class="btn-submit" onclick="confirmDeposit('mpesa')">✅ I've Sent the Payment</button>
+            </div>
+
+            <!-- Bitcoin Details -->
+            <div id="bitcoinDetails" class="payment-details">
+                <h4 style="color:var(--accent-yellow); margin-bottom:12px;">₿ Bitcoin Payment</h4>
+                <p style="color:var(--text-secondary); font-size:13px; margin-bottom:12px;">Send exactly <strong style="color:var(--accent-green);" id="btcAmount">0.00000000 BTC</strong> to the address below:</p>
+                <div class="payment-info" style="text-align:center; padding:24px;">
+                    <div style="font-size:36px; margin-bottom:8px;">⏳</div>
+                    <div style="font-weight:700; color:var(--accent-yellow); font-size:16px; margin-bottom:6px;">BTC Address Coming Soon</div>
+                    <p style="color:var(--text-secondary); font-size:13px; margin-bottom:12px;">While we finalize our BTC wallet, please use WhatsApp to arrange your Bitcoin deposit.</p>
+                    <a href="https://wa.me/254759401893?text=Hi%2C%20I%20want%20to%20deposit%20via%20Bitcoin%20on%20CryptoPro" target="_blank"
+                       style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;padding:12px 24px;border-radius:8px;font-weight:700;text-decoration:none;">
+                        💬 Contact us on WhatsApp
+                    </a>
+                </div>
+            </div>
+
+            <!-- Ethereum Details -->
+            <div id="ethereumDetails" class="payment-details">
+                <h4 style="color:var(--accent-blue); margin-bottom:12px;">⟠ Ethereum Payment</h4>
+                <p style="color:var(--text-secondary); font-size:13px; margin-bottom:12px;">Send exactly <strong style="color:var(--accent-green);" id="ethAmount">0.00000000 ETH</strong> to the address below:</p>
+                <div class="payment-info" style="text-align:center; padding:24px;">
+                    <div style="font-size:36px; margin-bottom:8px;">⏳</div>
+                    <div style="font-weight:700; color:var(--accent-yellow); font-size:16px; margin-bottom:6px;">ETH Address Coming Soon</div>
+                    <p style="color:var(--text-secondary); font-size:13px; margin-bottom:12px;">While we finalize our ETH wallet, please use WhatsApp to arrange your Ethereum deposit.</p>
+                    <a href="https://wa.me/254759401893?text=Hi%2C%20I%20want%20to%20deposit%20via%20Ethereum%20on%20CryptoPro" target="_blank"
+                       style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;padding:12px 24px;border-radius:8px;font-weight:700;text-decoration:none;">
+                        💬 Contact us on WhatsApp
+                    </a>
+                </div>
+            </div>
+
+            <!-- USDT Details -->
+            <div id="usdtDetails" class="payment-details">
+                <h4 style="color:var(--accent-green); margin-bottom:12px;">💵 USDT (TRC20) Payment</h4>
+                <p style="color:var(--text-secondary); font-size:13px; margin-bottom:12px;">Send exactly <strong style="color:var(--accent-green);" id="usdtAmount">$0 USDT</strong> to the address below:</p>
+                <div class="payment-info" style="text-align:center; padding:24px;">
+                    <div style="font-size:36px; margin-bottom:8px;">⏳</div>
+                    <div style="font-weight:700; color:var(--accent-yellow); font-size:16px; margin-bottom:6px;">USDT Address Coming Soon</div>
+                    <p style="color:var(--text-secondary); font-size:13px; margin-bottom:12px;">While we finalize our USDT wallet, please use WhatsApp to arrange your USDT deposit.</p>
+                    <a href="https://wa.me/254759401893?text=Hi%2C%20I%20want%20to%20deposit%20via%20USDT%20on%20CryptoPro" target="_blank"
+                       style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;padding:12px 24px;border-radius:8px;font-weight:700;text-decoration:none;">
+                        💬 Contact us on WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- LAYER 6: Withdraw -->
+<div id="withdrawLayer" class="layer">
+    <nav class="navbar">
+        <div class="logo" onclick="showLayer('dashboardLayer')">
+            <div class="logo-icon">₿</div>
+            <span>CryptoPro</span>
+        </div>
+        <div class="nav-links">
+            <button class="nav-btn btn-login" onclick="showLayer('dashboardLayer')">← Back</button>
+        </div>
+    </nav>
+    <div class="container">
+        <div style="max-width:500px; margin:0 auto;">
+            <h2 style="font-size:28px; font-weight:700; margin-bottom:8px; color:var(--accent-green);">💸 Withdraw Funds</h2>
+            <div style="background:rgba(14,203,129,0.1); border:2px solid rgba(14,203,129,0.3); border-radius:12px; padding:16px; margin-bottom:20px;">
+                <p style="color:var(--text-secondary); font-size:13px;">Available Balance</p>
+                <p style="font-size:32px; font-weight:900; color:var(--accent-green);" id="withdrawAvailable">$0.00</p>
+            </div>
+            <div id="withdrawAlert" class="alert"></div>
+            <div class="form-group">
+                <label>Withdrawal Amount (USD)</label>
+                <input type="number" id="withdrawAmount" placeholder="Enter amount" min="10">
+            </div>
+            <div class="form-group">
+                <label>Withdrawal Method</label>
+                <select id="withdrawMethod">
+                    <option value="mpesa">M-PESA</option>
+                    <option value="bitcoin">Bitcoin</option>
+                    <option value="ethereum">Ethereum</option>
+                    <option value="usdt">USDT (TRC20)</option>
+                    <option value="bank">Bank Transfer</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Account / Wallet Address</label>
+                <input type="text" id="withdrawAddress" placeholder="Phone number or wallet address">
+            </div>
+            <div class="form-group">
+                <label>Account Name</label>
+                <input type="text" id="withdrawName" placeholder="Your full name">
+            </div>
+            <button class="btn-submit" onclick="handleWithdraw()">💸 Submit Withdrawal Request</button>
+        </div>
+    </div>
+</div>
+
+<!-- LAYER 7: Referral -->
+<div id="referralLayer" class="layer">
+    <nav class="navbar">
+        <div class="logo" onclick="showLayer('dashboardLayer')">
+            <div class="logo-icon">₿</div>
+            <span>CryptoPro</span>
+        </div>
+        <div class="nav-links">
+            <button class="nav-btn btn-login" onclick="showLayer('dashboardLayer')">← Back</button>
+        </div>
+    </nav>
+    <div class="container">
+        <div style="max-width:600px; margin:0 auto;">
+            <div style="background:linear-gradient(135deg,rgba(14,203,129,0.15),rgba(0,217,255,0.15)); border:2px solid var(--accent-green); border-radius:16px; padding:32px; margin-bottom:24px; text-align:center;">
+                <div style="font-size:48px; margin-bottom:12px;">🔗</div>
+                <h2 style="font-size:28px; font-weight:700; margin-bottom:8px;">Refer & Earn $25</h2>
+                <p style="color:var(--text-secondary); margin-bottom:20px;">Earn $25 for every friend who signs up and makes their first deposit!</p>
+                <div style="background:var(--bg-primary); border-radius:12px; padding:20px; margin-bottom:16px;">
+                    <p style="color:var(--text-secondary); font-size:13px; margin-bottom:8px;">Your Referral Code</p>
+                    <div style="font-size:32px; font-weight:900; color:var(--accent-yellow); letter-spacing:4px; margin-bottom:12px;" id="userReferralCode">CP00000</div>
+                    <button class="copy-btn" onclick="copyReferralCode()">📋 Copy Code</button>
+                </div>
+                <div style="background:var(--bg-primary); border-radius:12px; padding:20px; margin-bottom:16px;">
+                    <p style="color:var(--text-secondary); font-size:13px; margin-bottom:8px;">Your Referral Link</p>
+                    <div style="font-size:13px; color:var(--accent-blue); word-break:break-all; margin-bottom:12px;" id="userReferralLink">https://cryptopro.com/?ref=CP00000</div>
+                    <button class="copy-btn" onclick="copyReferralLink()">🔗 Copy Link</button>
+                </div>
+                <a id="whatsappShareBtn" href="#" target="_blank"
+                    style="display:block; background:linear-gradient(135deg,#25D366,#128C7E); color:#fff; padding:14px 24px; border-radius:12px; font-weight:700; text-decoration:none; margin-top:12px;">
+                    📲 Share on WhatsApp
+                </a>
+            </div>
+
+            <div style="background:var(--bg-secondary); border-radius:12px; padding:20px; border:1px solid var(--border-color);">
+                <h3 style="color:var(--accent-green); margin-bottom:16px;">📊 Your Referral Stats</h3>
+                <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; text-align:center;">
+                    <div style="background:var(--bg-tertiary); padding:16px; border-radius:8px;">
+                        <p style="font-size:28px; font-weight:900; color:var(--accent-green);" id="totalReferrals">0</p>
+                        <p style="color:var(--text-secondary); font-size:12px;">Total Referrals</p>
+                    </div>
+                    <div style="background:var(--bg-tertiary); padding:16px; border-radius:8px;">
+                        <p style="font-size:28px; font-weight:900; color:var(--accent-yellow);" id="pendingReferrals">0</p>
+                        <p style="color:var(--text-secondary); font-size:12px;">Pending</p>
+                    </div>
+                    <div style="background:var(--bg-tertiary); padding:16px; border-radius:8px;">
+                        <p style="font-size:28px; font-weight:900; color:var(--accent-blue);" id="referralEarnings">$0</p>
+                        <p style="color:var(--text-secondary); font-size:12px;">Total Earned</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- LAYER 8: Charts -->
+<div id="chartsLayer" class="layer">
+    <nav class="navbar">
+        <div class="logo" onclick="showLayer('welcomeLayer')">
+            <div class="logo-icon">₿</div>
+            <span>CryptoPro</span>
+        </div>
+        <div class="nav-links" id="chartsNavLinks">
+            <button class="nav-btn btn-signup" onclick="showLayer('signupLayer')">Start Trading</button>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="chart-section">
+            <div class="chart-header">
+                <div>
+                    <div class="chart-title">📊 Live BTC/USD Chart</div>
+                    <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
+                        <button onclick="switchCoin('BTC')" id="btnBTC" style="padding:6px 14px; border-radius:6px; border:none; background:var(--accent-green); color:#fff; cursor:pointer; font-weight:600;">BTC</button>
+                        <button onclick="switchCoin('ETH')" id="btnETH" style="padding:6px 14px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-tertiary); color:var(--text-primary); cursor:pointer;">ETH</button>
+                        <button onclick="switchCoin('SOL')" id="btnSOL" style="padding:6px 14px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-tertiary); color:var(--text-primary); cursor:pointer;">SOL</button>
+                        <button onclick="switchCoin('BNB')" id="btnBNB" style="padding:6px 14px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-tertiary); color:var(--text-primary); cursor:pointer;">BNB</button>
+                    </div>
+                </div>
+                <div style="text-align:right;">
+                    <div class="current-price" id="livePrice">$67,234.50</div>
+                    <div class="price-change positive" id="priceChange">+2.34%</div>
+                </div>
+            </div>
+            <div class="price-info">
+                <div><span style="color:var(--text-secondary); font-size:12px;">24h High</span><br><span style="color:var(--accent-green); font-weight:700;" id="price24High">$68,500</span></div>
+                <div><span style="color:var(--text-secondary); font-size:12px;">24h Low</span><br><span style="color:var(--accent-red); font-weight:700;" id="price24Low">$65,200</span></div>
+                <div><span style="color:var(--text-secondary); font-size:12px;">24h Volume</span><br><span style="color:var(--text-primary); font-weight:700;" id="price24Vol">$48.2B</span></div>
+                <div><span style="color:var(--text-secondary); font-size:12px;">Market Cap</span><br><span style="color:var(--text-primary); font-weight:700;" id="marketCap">$1.32T</span></div>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="mainChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Mini Charts -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:20px; margin-bottom:20px;">
+            <div class="chart-section" style="margin-bottom:0;">
+                <div class="chart-header">
+                    <div class="chart-title">ETH/USD</div>
+                    <div>
+                        <div style="color:var(--accent-green); font-weight:700;" id="ethPrice">$3,456.78</div>
+                        <div style="color:var(--accent-green); font-size:12px;">+1.23%</div>
+                    </div>
+                </div>
+                <div class="chart-wrapper small"><canvas id="ethChart"></canvas></div>
+            </div>
+            <div class="chart-section" style="margin-bottom:0;">
+                <div class="chart-header">
+                    <div class="chart-title">SOL/USD</div>
+                    <div>
+                        <div style="color:var(--accent-red); font-weight:700;" id="solPrice">$178.45</div>
+                        <div style="color:var(--accent-red); font-size:12px;">-0.87%</div>
+                    </div>
+                </div>
+                <div class="chart-wrapper small"><canvas id="solChart"></canvas></div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="action-btn btn-signup" style="background:linear-gradient(135deg,var(--accent-green),#0B8F5F);color:#fff;" onclick="showLayer('signupLayer')">🚀 Start Trading Now</button>
+        </div>
+    </div>
+</div>
+
+<!-- LAYER 9: Reviews -->
+<div id="reviewsLayer" class="layer">
+    <nav class="navbar">
+        <div class="logo" onclick="showLayer('welcomeLayer')">
+            <div class="logo-icon">₿</div>
+            <span>CryptoPro</span>
+        </div>
+        <div class="nav-links">
+            <button class="nav-btn btn-login" onclick="showLayer('welcomeLayer')">← Home</button>
+            <button class="nav-btn btn-signup" onclick="showLayer('signupLayer')">Sign Up Free</button>
+        </div>
+    </nav>
+    <div class="container">
+        <div style="text-align:center; margin-bottom:32px;">
+            <h2 style="font-size:36px; font-weight:700; background:linear-gradient(135deg,var(--accent-green),var(--accent-blue)); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">What Our Traders Say</h2>
+            <p style="color:var(--text-secondary); margin-top:8px;">Verified reviews from real CryptoPro users</p>
+        </div>
+        <div id="reviewsGrid" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:20px; margin-bottom:32px;"></div>
+        <div style="text-align:center;">
+            <button class="hero-btn hero-btn-primary" onclick="showLayer('signupLayer')">Join Thousands of Happy Traders →</button>
+        </div>
+    </div>
+</div>
+
+<!-- WhatsApp Support (visible on all logged-in layers) -->
+<div class="whatsapp-support" id="globalWhatsapp" style="display:none;">
+    <a href="https://wa.me/254759401893" class="whatsapp-btn" target="_blank">
+        <span style="font-size:28px;">💬</span>
+        <span>Support</span>
+    </a>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT - All Logic
+     ============================================================ -->
+<script>
+// ─── STATE ───────────────────────────────────────────────────
+let currentUser = null;
+let users = JSON.parse(localStorage.getItem('cpUsers') || '{}');
+let chartInstances = {};
+let chartUpdateInterval = null;
+let priceUpdateInterval = null;
+let currentCoin = 'BTC';
+
+const COIN_PRICES = {
+    BTC: { price: 67234.50, change: 2.34, high: 68500, low: 65200, vol: '$48.2B', cap: '$1.32T' },
+    ETH: { price: 3456.78, change: 1.23, high: 3600, low: 3300, vol: '$18.5B', cap: '$415B' },
+    SOL: { price: 178.45, change: -0.87, high: 185, low: 172, vol: '$4.2B', cap: '$78B' },
+    BNB: { price: 562.30, change: 0.54, high: 575, low: 555, vol: '$2.1B', cap: '$86B' }
+};
+
+const EXCHANGE_RATES = {
+    BTC: 0.0000149, ETH: 0.000290, USDT: 1,
+    KES: 129.5, NGN: 1580, GHS: 15.2, ZAR: 18.7,
+    GBP: 0.79, EUR: 0.92
+};
+
+const INVESTMENT_PLANS = [
+    { name: 'Starter', minDeposit: 10, maxDeposit: 499, dailyReturn: 3, duration: 7, color: '#0ECB81', emoji: '🌱' },
+    { name: 'Silver', minDeposit: 500, maxDeposit: 1999, dailyReturn: 5, duration: 14, color: '#848E9C', emoji: '🥈' },
+    { name: 'Gold', minDeposit: 2000, maxDeposit: 9999, dailyReturn: 8, duration: 30, color: '#FCD535', emoji: '🥇' },
+    { name: 'Platinum', minDeposit: 10000, maxDeposit: 999999, dailyReturn: 12, duration: 60, color: '#00d9ff', emoji: '💎' }
+];
+
+// ─── LAYER MANAGEMENT ────────────────────────────────────────
+function showLayer(layerId) {
+    document.querySelectorAll('.layer').forEach(l => l.classList.remove('active'));
+    document.getElementById(layerId).classList.add('active');
+    window.scrollTo(0, 0);
+
+    if (layerId === 'welcomeLayer') initWelcomePage();
+    if (layerId === 'dashboardLayer') initDashboard();
+    if (layerId === 'chartsLayer') initCharts();
+    if (layerId === 'depositLayer') initDepositPage();
+    if (layerId === 'referralLayer') initReferralPage();
+    if (layerId === 'reviewsLayer') initReviews();
+    if (layerId === 'withdrawLayer') updateWithdrawBalance();
+}
+
+// ─── WELCOME PAGE ─────────────────────────────────────────────
+function initWelcomePage() {
+    renderLiveTraders();
+    renderTopWinners();
+    checkReferralParam();
+}
+
+const TRADER_DATA = [
+    { name: 'John M.', flag: '🇰🇪', profit: '+$1,247', trades: 34 },
+    { name: 'Amara K.', flag: '🇳🇬', profit: '+$3,892', trades: 67 },
+    { name: 'David L.', flag: '🇿🇦', profit: '+$892', trades: 23 },
+    { name: 'Sarah W.', flag: '🇬🇧', profit: '+$5,631', trades: 112 },
+    { name: 'Kwame A.', flag: '🇬🇭', profit: '+$2,145', trades: 45 },
+    { name: 'Fatima B.', flag: '🇲🇦', profit: '+$4,280', trades: 89 },
+    { name: 'Michael R.', flag: '🇺🇸', profit: '+$7,940', trades: 156 },
+    { name: 'Aisha T.', flag: '🇹🇿', profit: '+$1,620', trades: 38 },
+    { name: 'Carlos V.', flag: '🇵🇭', profit: '+$3,315', trades: 71 },
+    { name: 'Priya S.', flag: '🇮🇳', profit: '+$2,870', trades: 59 },
+    { name: 'Emmanuel O.', flag: '🇨🇮', profit: '+$9,100', trades: 204 },
+    { name: 'Liu W.', flag: '🇨🇳', profit: '+$6,450', trades: 133 }
+];
+
+const EMOJIS = ['😊', '💪', '🚀', '💰', '🎯', '⚡', '🔥', '💎', '🌟', '🎊'];
+
+function renderLiveTraders() {
+    const ticker = document.getElementById('liveTradersTicker');
+    if (!ticker) return;
+    const doubled = [...TRADER_DATA, ...TRADER_DATA];
+    ticker.innerHTML = doubled.map(t => `
+        <div class="trader-card">
+            <div class="trader-avatar">${EMOJIS[Math.floor(Math.random() * EMOJIS.length)]}</div>
+            <div class="trader-info">
+                <div class="trader-name">${t.flag} ${t.name}</div>
+                <div style="font-size:11px; color:var(--text-secondary);">${t.trades} trades today</div>
+            </div>
+            <div class="trader-profit">${t.profit}</div>
+        </div>
+    `).join('');
+}
+
+function renderTopWinners() {
+    const grid = document.getElementById('topWinnersGrid');
+    if (!grid) return;
+    const winners = [
+        { name: 'Michael R.', flag: '🇺🇸', profit: '$28,450', percent: '+312%', trades: 156, days: 14, emoji: '🏆' },
+        { name: 'Emmanuel O.', flag: '🇨🇮', profit: '$19,200', percent: '+245%', trades: 204, days: 21, emoji: '🥈' },
+        { name: 'Liu W.', flag: '🇨🇳', profit: '$15,800', percent: '+198%', trades: 133, days: 10, emoji: '🥉' }
+    ];
+    grid.innerHTML = winners.map((w, i) => `
+        <div class="winner-card">
+            <div class="winner-rank">${i + 1}</div>
+            <div class="winner-header">
+                <div class="winner-avatar-large">${w.emoji}</div>
+                <div class="winner-details">
+                    <h4>${w.flag} ${w.name}</h4>
+                    <div class="winner-location">Verified Trader</div>
+                </div>
+            </div>
+            <div class="winner-stats">
+                <div class="winner-stat"><div class="winner-stat-label">Total Profit</div><div class="winner-stat-value" style="font-size:16px;">${w.profit}</div></div>
+                <div class="winner-stat"><div class="winner-stat-label">ROI</div><div class="winner-stat-value">${w.percent}</div></div>
+                <div class="winner-stat"><div class="winner-stat-label">Trades</div><div class="winner-stat-value">${w.trades}</div></div>
+                <div class="winner-stat"><div class="winner-stat-label">Days Active</div><div class="winner-stat-value">${w.days}</div></div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function checkReferralParam() {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref');
+    if (ref) {
+        const referrer = Object.values(users).find(u => u.referralCode === ref);
+        const banner = document.getElementById('referralSuccessBanner');
+        if (banner) {
+            document.getElementById('referrerName').textContent = referrer ? referrer.name : 'Your friend';
+            banner.classList.add('show');
+            document.getElementById('signupReferral') && (document.getElementById('signupReferral').value = ref);
+        }
+    }
+}
+
+function closeReferralBanner() {
+    document.getElementById('referralSuccessBanner').classList.remove('show');
+}
+
+// ─── AUTH ─────────────────────────────────────────────────────
+function handleSignup() {
+    const name = document.getElementById('signupName').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const phone = document.getElementById('signupPhone').value.trim();
+    const password = document.getElementById('signupPassword').value;
+    const referral = document.getElementById('signupReferral').value.trim();
+    const accountType = document.getElementById('accountType')?.value || 'real';
+
+    const alertEl = document.getElementById('signupAlert');
+    if (!name || !email || !phone || !password) {
+        showAlert(alertEl, 'error', 'Please fill in all required fields.');
+        return;
+    }
+    if (users[email]) {
+        showAlert(alertEl, 'error', 'An account with this email already exists.');
+        return;
+    }
+
+    const isDemo = accountType === 'demo';
+    const referralCode = 'CP' + Math.random().toString(36).substr(2, 6).toUpperCase();
+    const startBalance = isDemo ? 10000 : 25;
+
+    const user = {
+        name, email, phone, password,
+        referralCode, accountType,
+        balance: startBalance,
+        deposited: 0,
+        dailyProfit: 0,
+        referralBonus: isDemo ? 0 : 25,
+        transactions: [{
+            type: 'bonus', amount: startBalance,
+            desc: isDemo ? '🎮 Demo Account — Virtual $10,000 Balance' : '🎉 Welcome Signup Bonus — $25',
+            date: new Date().toLocaleDateString(), status: 'completed'
+        }],
+        referrals: [], activePlans: [],
+        createdAt: new Date().toISOString(),
+        registrationNumber: Object.keys(users).length + 1
+    };
+
+    if (referral && !isDemo) {
+        const referrer = Object.values(users).find(u => u.referralCode === referral);
+        if (referrer) {
+            referrer.balance += 25;
+            referrer.referralBonus = (referrer.referralBonus || 0) + 25;
+            referrer.referrals = referrer.referrals || [];
+            referrer.referrals.push({ name, email, date: new Date().toLocaleDateString() });
+            referrer.transactions.push({ type: 'referral', amount: 25, desc: `Referral bonus – ${name}`, date: new Date().toLocaleDateString(), status: 'completed' });
+            users[referrer.email] = referrer;
+        }
+    }
+
+    users[email] = user;
+    localStorage.setItem('cpUsers', JSON.stringify(users));
+    currentUser = user;
+
+    // 📧 Send admin notification email
+    sendRegistrationNotification(user).catch(console.warn);
+
+    showLayer('dashboardLayer');
+    const msg = isDemo
+        ? `🎮 Demo account created, ${name}!\nYou have $10,000 virtual money to practice with.`
+        : `🎉 Welcome, ${name}!\n$25 real bonus credited to your account!`;
+    showToast(msg);
+}
+
+function handleLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const alertEl = document.getElementById('loginAlert');
+
+    if (!email || !password) {
+        showAlert(alertEl, 'error', 'Please enter your email and password.');
+        return;
+    }
+    const user = users[email];
+    if (!user || user.password !== password) {
+        showAlert(alertEl, 'error', 'Invalid email or password.');
+        return;
+    }
+    currentUser = user;
+    showLayer('dashboardLayer');
+    const isDemo = user.accountType === 'demo';
+    showToast(`👋 Welcome back, ${user.name}!\n${isDemo ? '🎮 You are in Demo Mode' : '💰 Real Account Active'}`);
+}
+
+function handleLogout() {
+    currentUser = null;
+    showLayer('welcomeLayer');
+}
+
+// ─── DASHBOARD ───────────────────────────────────────────────
+function initDashboard() {
+    if (!currentUser) { showLayer('loginLayer'); return; }
+    simulateDailyProfit();
+    updateDashboardUI();
+    renderInvestmentPlans();
+    renderTransactions();
+    initAIAssistant();
+    convertCurrency();
+    updateWithdrawBalance();
+    applyAccountMode();
+    // Update dashboard title badge
+    const badge = document.getElementById('accountTypeBadge');
+    if (badge) {
+        const isDemo = currentUser.accountType === 'demo';
+        badge.textContent = isDemo ? '🎮 DEMO' : '💰 REAL';
+        badge.style.background = isDemo ? 'rgba(245,158,11,0.2)' : 'rgba(14,203,129,0.1)';
+        badge.style.color = isDemo ? '#f59e0b' : 'var(--accent-green)';
+        badge.style.border = isDemo ? '1px solid rgba(245,158,11,0.4)' : '1px solid rgba(14,203,129,0.3)';
+    }
+}
+
+function simulateDailyProfit() {
+    if (!currentUser || !currentUser.activePlans) return;
+    let totalProfit = 0;
+    currentUser.activePlans.forEach(plan => {
+        const planInfo = INVESTMENT_PLANS.find(p => p.name === plan.name);
+        if (planInfo) {
+            const profit = (plan.amount * planInfo.dailyReturn) / 100;
+            totalProfit += profit;
+        }
+    });
+    if (totalProfit > 0) {
+        currentUser.balance += totalProfit;
+        currentUser.dailyProfit = totalProfit;
+        saveCurrentUser();
+    }
+}
+
+function updateDashboardUI() {
+    if (!currentUser) return;
+    document.getElementById('navUserName').textContent = currentUser.name.split(' ')[0];
+    document.getElementById('dashBalance').textContent = '$' + currentUser.balance.toFixed(2);
+    document.getElementById('dashDailyProfit').textContent = '+$' + (currentUser.dailyProfit || 0).toFixed(2);
+    document.getElementById('dashDeposited').textContent = '$' + (currentUser.deposited || 0).toFixed(2);
+    document.getElementById('dashReferralBonus').textContent = '$' + (currentUser.referralBonus || 0).toFixed(2);
+}
+
+function renderInvestmentPlans() {
+    const container = document.getElementById('investmentPlans');
+    if (!container) return;
+    container.innerHTML = INVESTMENT_PLANS.map(plan => `
+        <div style="background:var(--bg-primary); border:2px solid ${plan.color}33; border-radius:12px; padding:20px; transition:all 0.3s; cursor:pointer;"
+             onmouseover="this.style.borderColor='${plan.color}'; this.style.transform='translateY(-4px)'"
+             onmouseout="this.style.borderColor='${plan.color}33'; this.style.transform='translateY(0)'">
+            <div style="font-size:28px; margin-bottom:8px;">${plan.emoji}</div>
+            <div style="font-size:18px; font-weight:700; color:${plan.color}; margin-bottom:4px;">${plan.name} Plan</div>
+            <div style="font-size:28px; font-weight:900; color:#fff; margin-bottom:4px;">${plan.dailyReturn}%<span style="font-size:14px; font-weight:400; color:var(--text-secondary);"> daily</span></div>
+            <div style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">$${plan.minDeposit} – $${plan.maxDeposit === 999999 ? '∞' : plan.maxDeposit} · ${plan.duration} days</div>
+            <button onclick="showLayer('depositLayer')"
+                style="width:100%; padding:10px; background:linear-gradient(135deg,${plan.color},${plan.color}99); border:none; border-radius:8px; color:#000; font-weight:700; cursor:pointer; font-size:14px;">
+                Invest Now
+            </button>
+        </div>
+    `).join('');
+}
+
+function renderTransactions() {
+    const container = document.getElementById('transactionHistory');
+    if (!container || !currentUser) return;
+    const txs = (currentUser.transactions || []).slice().reverse();
+    if (!txs.length) {
+        container.innerHTML = '<p style="color:var(--text-secondary); text-align:center; padding:20px;">No transactions yet</p>';
+        return;
+    }
+    container.innerHTML = txs.map(tx => `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:14px; border-bottom:1px solid var(--border-color);">
+            <div>
+                <div style="font-weight:600; color:var(--text-primary);">${tx.desc}</div>
+                <div style="font-size:12px; color:var(--text-secondary);">${tx.date} · <span style="color:${tx.status === 'completed' ? 'var(--accent-green)' : 'var(--accent-yellow)'};">${tx.status}</span></div>
+            </div>
+            <div style="font-weight:700; font-size:18px; color:${tx.type === 'withdraw' ? 'var(--accent-red)' : 'var(--accent-green)'};">
+                ${tx.type === 'withdraw' ? '-' : '+'}$${Number(tx.amount).toFixed(2)}
+            </div>
+        </div>
+    `).join('');
+}
+
+// ─── DEPOSIT ─────────────────────────────────────────────────
+let selectedPlan = null;
+let selectedPayment = null;
+
+function initDepositPage() {
+    renderPlanSelector();
+}
+
+function renderPlanSelector() {
+    const container = document.getElementById('planSelector');
+    if (!container) return;
+    container.innerHTML = INVESTMENT_PLANS.map(plan => `
+        <div class="payment-method-btn" style="display:flex; justify-content:space-between; align-items:center;"
+             onclick="selectPlan('${plan.name}', this)">
+            <span>${plan.emoji} ${plan.name}</span>
+            <span style="color:var(--accent-green); font-weight:700;">${plan.dailyReturn}% daily · min $${plan.minDeposit}</span>
+        </div>
+    `).join('');
+}
+
+function selectPlan(planName, el) {
+    document.querySelectorAll('#planSelector .payment-method-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    selectedPlan = INVESTMENT_PLANS.find(p => p.name === planName);
+}
+
+function selectPayment(method) {
+    selectedPayment = method;
+    document.querySelectorAll('.payment-method-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    document.querySelectorAll('.payment-details').forEach(d => d.classList.remove('active'));
+    document.getElementById(method + 'Details').classList.add('active');
+    updateDepositDisplay();
+}
+
+function updateDepositDisplay() {
+    const amount = parseFloat(document.getElementById('depositAmount')?.value) || 0;
+    if (document.getElementById('mpesaAmount')) document.getElementById('mpesaAmount').textContent = `$${amount} (KES ${(amount * 129.5).toFixed(0)})`;
+    if (document.getElementById('btcAmount')) document.getElementById('btcAmount').textContent = (amount * EXCHANGE_RATES.BTC).toFixed(8) + ' BTC';
+    if (document.getElementById('ethAmount')) document.getElementById('ethAmount').textContent = (amount * EXCHANGE_RATES.ETH).toFixed(6) + ' ETH';
+    if (document.getElementById('usdtAmount')) document.getElementById('usdtAmount').textContent = '$' + amount + ' USDT';
+}
+
+function confirmDeposit(method) {
+    const amount = parseFloat(document.getElementById('depositAmount')?.value);
+    const alertEl = document.getElementById('depositAlerts');
+    if (!amount || amount < 10) { showAlert(alertEl, 'error', 'Please enter a valid amount (minimum $10).'); return; }
+    if (!selectedPlan) { showAlert(alertEl, 'error', 'Please select an investment plan first.'); return; }
+    if (!currentUser) { showLayer('loginLayer'); return; }
+
+    currentUser.balance += amount;
+    currentUser.deposited = (currentUser.deposited || 0) + amount;
+    currentUser.activePlans = currentUser.activePlans || [];
+    currentUser.activePlans.push({ name: selectedPlan.name, amount, startDate: new Date().toLocaleDateString() });
+    currentUser.transactions.push({
+        type: 'deposit', amount,
+        desc: `Deposit via ${method.toUpperCase()} – ${selectedPlan.name} Plan`,
+        date: new Date().toLocaleDateString(), status: 'pending'
+    });
+    saveCurrentUser();
+    showToast(`✅ Deposit of $${amount} submitted!\nYour ${selectedPlan.name} plan is now active.\n${selectedPlan.dailyReturn}% daily returns starting tomorrow.`);
+    showLayer('dashboardLayer');
+}
+
+// ─── WITHDRAW ────────────────────────────────────────────────
+function updateWithdrawBalance() {
+    const el = document.getElementById('withdrawAvailable');
+    if (el && currentUser) el.textContent = '$' + currentUser.balance.toFixed(2);
+}
+
+function handleWithdraw() {
+    const amount = parseFloat(document.getElementById('withdrawAmount')?.value);
+    const method = document.getElementById('withdrawMethod')?.value;
+    const address = document.getElementById('withdrawAddress')?.value.trim();
+    const name = document.getElementById('withdrawName')?.value.trim();
+    const alertEl = document.getElementById('withdrawAlert');
+
+    if (!amount || amount < 10) { showAlert(alertEl, 'error', 'Minimum withdrawal is $10.'); return; }
+    if (!address || !name) { showAlert(alertEl, 'error', 'Please fill in all fields.'); return; }
+    if (!currentUser || currentUser.balance < amount) { showAlert(alertEl, 'error', 'Insufficient balance.'); return; }
+
+    currentUser.balance -= amount;
+    currentUser.transactions.push({
+        type: 'withdraw', amount,
+        desc: `Withdrawal via ${method.toUpperCase()} to ${address}`,
+        date: new Date().toLocaleDateString(), status: 'processing'
+    });
+    saveCurrentUser();
+    showToast(`💸 Withdrawal of $${amount} submitted!\nProcessing time: 1-24 hours.\nWe'll send to: ${address}`);
+    showLayer('dashboardLayer');
+}
+
+// ─── REFERRAL ────────────────────────────────────────────────
+function initReferralPage() {
+    if (!currentUser) return;
+    const code = currentUser.referralCode;
+    const link = window.location.origin + window.location.pathname + '?ref=' + code;
+    document.getElementById('userReferralCode').textContent = code;
+    document.getElementById('userReferralLink').textContent = link;
+    document.getElementById('whatsappShareBtn').href =
+        `https://wa.me/?text=${encodeURIComponent('🚀 Join CryptoPro and earn with AI trading bots!\nUse my referral code: ' + code + '\nSign up here: ' + link)}`;
+    document.getElementById('totalReferrals').textContent = (currentUser.referrals || []).length;
+    document.getElementById('pendingReferrals').textContent = 0;
+    document.getElementById('referralEarnings').textContent = '$' + (currentUser.referralBonus - 25 || 0).toFixed(0);
+}
+
+function copyReferralCode() {
+    copyToClipboard(currentUser.referralCode, 'Referral code');
+}
+
+function copyReferralLink() {
+    const link = window.location.origin + window.location.pathname + '?ref=' + currentUser.referralCode;
+    copyToClipboard(link, 'Referral link');
+}
+
+// ─── CURRENCY CONVERTER ───────────────────────────────────────
+function convertCurrency() {
+    const amount = parseFloat(document.getElementById('convertAmount')?.value) || 0;
+    const to = document.getElementById('toCurrency')?.value;
+    if (!to) return;
+    const rate = EXCHANGE_RATES[to] || 1;
+    const result = amount * rate;
+    const symbols = { BTC: '₿', ETH: 'Ξ', USDT: '$', KES: 'KES', NGN: '₦', GHS: '₵', ZAR: 'R', GBP: '£', EUR: '€' };
+    const sym = symbols[to] || '';
+    document.getElementById('convertResult').textContent = sym + (result < 0.001 ? result.toFixed(8) : result.toFixed(4)) + ' ' + to;
+    document.getElementById('convertRate').textContent = `1 USD = ${rate < 0.001 ? rate.toFixed(8) : rate.toFixed(4)} ${to}`;
+}
+
+function swapCurrencies() {
+    const amtEl = document.getElementById('convertAmount');
+    const amt = parseFloat(amtEl.value) || 100;
+    const to = document.getElementById('toCurrency').value;
+    const rate = EXCHANGE_RATES[to] || 1;
+    amtEl.value = (amt * rate).toFixed(4);
+    convertCurrency();
+}
+
+// ─── AI ASSISTANT ────────────────────────────────────────────
+const AI_RESPONSES = {
+    'invest': ['Based on current market analysis, BTC and ETH show strong upward momentum. I recommend diversifying across multiple assets for optimal returns.', 'Our AI signals indicate a strong buy opportunity in the current market. Consider allocating 60% BTC, 30% ETH, and 10% altcoins.'],
+    'btc': ['BTC is currently showing a bullish trend with strong support at $65,000. Our AI predicts a potential 15-20% gain in the next 30 days.', 'Bitcoin RSI is at 58 – not overbought. The 200-day MA is pointing up. This is a healthy bull market structure.'],
+    'profit': ['To maximize profits: (1) Use our auto-trading bots, (2) Reinvest your daily returns, (3) Refer friends for bonus income, (4) Choose the Gold or Platinum plan for higher returns.', 'Our top traders reinvest 80% of daily profits. Compounding is the key to exponential growth on CryptoPro.'],
+    'safe': ['CryptoPro uses military-grade 256-bit encryption. All funds are insured and stored in cold wallets. Your investments are 100% secure.', 'We have maintained 99.9% uptime since launch. Our risk management AI automatically exits positions to protect your capital.'],
+    'default': ['Great question! Our AI is analyzing market data to give you the best recommendation. Based on current indicators, the market looks favorable for trading today.', 'Our advanced algorithms are processing thousands of data points. Current market sentiment is bullish with 78% of our AI signals pointing to profitable opportunities.', 'I\'ve analyzed your portfolio. To optimize returns, consider increasing your deposit to unlock our Gold Plan which offers 8% daily returns.']
+};
+
+function initAIAssistant() {
+    const messages = document.getElementById('aiMessages');
+    if (!messages || messages.innerHTML) return;
+    addAIMessage('bot', `👋 Hello ${currentUser?.name || 'Trader'}! I'm your AI Trading Assistant.\n\nI can help you with market analysis, investment strategies, and maximizing your profits. What would you like to know?`);
+}
+
+function askAI(question) {
+    const input = document.getElementById('aiInput');
+    const q = question || input?.value.trim();
+    if (!q) return;
+    if (input) input.value = '';
+
+    addAIMessage('user', q);
+    const typingId = addTypingIndicator();
+
+    setTimeout(() => {
+        removeTypingIndicator(typingId);
+        const key = Object.keys(AI_RESPONSES).find(k => q.toLowerCase().includes(k));
+        const responses = AI_RESPONSES[key || 'default'];
+        const response = responses[Math.floor(Math.random() * responses.length)];
+        addAIMessage('bot', response);
+    }, 1200 + Math.random() * 800);
+}
+
+function addAIMessage(role, text) {
+    const container = document.getElementById('aiMessages');
+    if (!container) return;
+    const isBot = role === 'bot';
+    const div = document.createElement('div');
+    div.style.cssText = `display:flex; gap:8px; margin-bottom:12px; ${isBot ? '' : 'flex-direction:row-reverse;'}`;
+    div.innerHTML = `
+        <div style="width:32px; height:32px; border-radius:50%; background:${isBot ? 'linear-gradient(135deg,var(--accent-blue),#0099cc)' : 'linear-gradient(135deg,var(--accent-green),#0B8F5F)'}; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
+            ${isBot ? '🤖' : '👤'}
+        </div>
+        <div style="max-width:80%; background:${isBot ? 'var(--bg-secondary)' : 'linear-gradient(135deg,var(--accent-green),#0B8F5F)'}; color:${isBot ? 'var(--text-primary)' : '#fff'}; padding:10px 14px; border-radius:${isBot ? '4px 12px 12px 12px' : '12px 4px 12px 12px'}; font-size:14px; line-height:1.5; white-space:pre-line;">
+            ${text}
+        </div>`;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+    return div;
+}
+
+function addTypingIndicator() {
+    const container = document.getElementById('aiMessages');
+    if (!container) return null;
+    const id = 'typing-' + Date.now();
+    const div = document.createElement('div');
+    div.id = id;
+    div.style.cssText = 'display:flex; gap:8px; margin-bottom:12px;';
+    div.innerHTML = `
+        <div style="width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,var(--accent-blue),#0099cc); display:flex; align-items:center; justify-content:center; font-size:16px;">🤖</div>
+        <div style="background:var(--bg-secondary); padding:14px 18px; border-radius:4px 12px 12px 12px; display:flex; gap:4px; align-items:center;">
+            ${[0, 0.2, 0.4].map(d => `<div style="width:8px;height:8px;border-radius:50%;background:var(--accent-blue);animation:typingDot 1s ease-in-out ${d}s infinite;"></div>`).join('')}
+        </div>`;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+    return id;
+}
+
+function removeTypingIndicator(id) {
+    const el = document.getElementById(id);
+    if (el) el.remove();
+}
+
+// ─── CHARTS ───────────────────────────────────────────────────
+function initCharts() {
+    if (currentUser) {
+        const nav = document.getElementById('chartsNavLinks');
+        if (nav) nav.innerHTML = `<button class="nav-btn btn-login" onclick="showLayer('dashboardLayer')">← Dashboard</button>`;
+    }
+    setTimeout(() => {
+        drawChart('mainChart', generatePriceData(COIN_PRICES.BTC.price, 60), '#0ECB81');
+        drawChart('ethChart', generatePriceData(COIN_PRICES.ETH.price, 30), '#627EEA');
+        drawChart('solChart', generatePriceData(COIN_PRICES.SOL.price, 30), '#9945FF');
+        startPriceSimulation();
+    }, 100);
+}
+
+function generatePriceData(basePrice, points) {
+    const data = [];
+    let price = basePrice * 0.92;
+    for (let i = 0; i < points; i++) {
+        price += (Math.random() - 0.47) * (basePrice * 0.015);
+        price = Math.max(basePrice * 0.85, price);
+        data.push(Math.round(price * 100) / 100);
+    }
+    return data;
+}
+
+function drawChart(canvasId, data, color) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.offsetWidth || 800;
+    canvas.height = canvas.offsetHeight || 400;
+    const W = canvas.width, H = canvas.height;
+    const pad = { t: 20, r: 20, b: 40, l: 60 };
+    const cW = W - pad.l - pad.r, cH = H - pad.t - pad.b;
+
+    ctx.clearRect(0, 0, W, H);
+
+    const min = Math.min(...data) * 0.998;
+    const max = Math.max(...data) * 1.002;
+    const range = max - min;
+
+    const xStep = cW / (data.length - 1);
+    const points = data.map((v, i) => ({ x: pad.l + i * xStep, y: pad.t + cH - ((v - min) / range) * cH }));
+
+    // Grid
+    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 5; i++) {
+        const y = pad.t + (cH / 5) * i;
+        ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + cW, y); ctx.stroke();
+        const val = max - (range / 5) * i;
+        ctx.fillStyle = 'rgba(255,255,255,0.4)';
+        ctx.font = '11px monospace';
+        ctx.fillText('$' + val.toFixed(0), 4, y + 4);
+    }
+
+    // Gradient fill
+    const grad = ctx.createLinearGradient(0, pad.t, 0, pad.t + cH);
+    grad.addColorStop(0, color + '44');
+    grad.addColorStop(1, 'transparent');
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, pad.t + cH);
+    points.forEach(p => ctx.lineTo(p.x, p.y));
+    ctx.lineTo(points[points.length - 1].x, pad.t + cH);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Line
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+    points.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+    ctx.stroke();
+
+    // Current price dot
+    const last = points[points.length - 1];
+    ctx.beginPath();
+    ctx.arc(last.x, last.y, 5, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+
+    if (chartInstances[canvasId]) clearInterval(chartInstances[canvasId]);
+    chartInstances[canvasId] = { data, color, canvasId };
+}
+
+function switchCoin(coin) {
+    currentCoin = coin;
+    ['BTC', 'ETH', 'SOL', 'BNB'].forEach(c => {
+        const btn = document.getElementById('btn' + c);
+        if (btn) {
+            btn.style.background = c === coin ? 'var(--accent-green)' : 'var(--bg-tertiary)';
+            btn.style.color = c === coin ? '#fff' : 'var(--text-primary)';
+            btn.style.border = c === coin ? 'none' : '1px solid var(--border-color)';
+        }
+    });
+    const info = COIN_PRICES[coin];
+    document.getElementById('livePrice').textContent = '$' + info.price.toLocaleString();
+    const changeEl = document.getElementById('priceChange');
+    changeEl.textContent = (info.change >= 0 ? '+' : '') + info.change + '%';
+    changeEl.className = 'price-change ' + (info.change >= 0 ? 'positive' : 'negative');
+    document.getElementById('price24High').textContent = '$' + info.high.toLocaleString();
+    document.getElementById('price24Low').textContent = '$' + info.low.toLocaleString();
+    document.getElementById('price24Vol').textContent = info.vol;
+    document.getElementById('marketCap').textContent = info.cap;
+    drawChart('mainChart', generatePriceData(info.price, 60), info.change >= 0 ? '#0ECB81' : '#F6465D');
+}
+
+function startPriceSimulation() {
+    if (priceUpdateInterval) clearInterval(priceUpdateInterval);
+    priceUpdateInterval = setInterval(() => {
+        const info = COIN_PRICES[currentCoin];
+        const newPrice = info.price * (1 + (Math.random() - 0.495) * 0.002);
+        info.price = Math.round(newPrice * 100) / 100;
+        const priceEl = document.getElementById('livePrice');
+        if (priceEl) priceEl.textContent = '$' + info.price.toLocaleString();
+
+        const ethEl = document.getElementById('ethPrice');
+        if (ethEl) {
+            COIN_PRICES.ETH.price *= (1 + (Math.random() - 0.495) * 0.002);
+            ethEl.textContent = '$' + COIN_PRICES.ETH.price.toFixed(2);
+        }
+        const solEl = document.getElementById('solPrice');
+        if (solEl) {
+            COIN_PRICES.SOL.price *= (1 + (Math.random() - 0.495) * 0.002);
+            solEl.textContent = '$' + COIN_PRICES.SOL.price.toFixed(2);
+        }
+    }, 2000);
+}
+
+// ─── REVIEWS ─────────────────────────────────────────────────
+function initReviews() {
+    const grid = document.getElementById('reviewsGrid');
+    if (!grid) return;
+    const reviews = [
+        { name: 'James O.', flag: '🇳🇬', rating: 5, text: 'I started with just $200 and in 3 weeks I have already made over $1,400! The AI bots are incredible. CryptoPro changed my financial life.', profit: '+$1,200', days: 21 },
+        { name: 'Grace K.', flag: '🇰🇪', rating: 5, text: 'Best investment platform I have ever used! Withdrawals are fast, support is amazing, and the daily returns are consistent. Highly recommend!', profit: '+$3,800', days: 45 },
+        { name: 'Robert T.', flag: '🇿🇦', rating: 5, text: 'I was skeptical at first but after seeing my first withdrawal hit my account within 24 hours, I was convinced. Now I invest $500 monthly.', profit: '+$2,100', days: 30 },
+        { name: 'Blessing A.', flag: '🇬🇭', rating: 5, text: 'The referral program alone has earned me $375 extra. I\'ve referred 15 friends and we\'re all making money together. Thank you CryptoPro!', profit: '+$5,200', days: 60 },
+        { name: 'Daniel M.', flag: '🇺🇬', rating: 5, text: 'Withdrew $2,000 yesterday and it arrived via M-PESA in less than 2 hours. This platform is legitimate and I\'m never going back to regular savings.', profit: '+$4,700', days: 55 },
+        { name: 'Fatou S.', flag: '🇸🇳', rating: 4, text: 'Very good platform with great support. Sometimes charts lag a little but overall profits are consistent and the team is always available on WhatsApp.', profit: '+$1,950', days: 38 }
+    ];
+    grid.innerHTML = reviews.map(r => `
+        <div style="background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:16px; padding:24px; transition:all 0.3s;"
+             onmouseover="this.style.borderColor='var(--accent-green)'; this.style.transform='translateY(-4px)'"
+             onmouseout="this.style.borderColor='var(--border-color)'; this.style.transform='translateY(0)'">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div style="width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg,var(--accent-green),var(--accent-blue)); display:flex; align-items:center; justify-content:center; font-size:22px;">😊</div>
+                    <div>
+                        <div style="font-weight:700;">${r.flag} ${r.name}</div>
+                        <div style="font-size:12px; color:var(--text-secondary);">Verified Trader · ${r.days} days</div>
+                    </div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="color:var(--accent-yellow); font-size:18px;">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
+                    <div style="color:var(--accent-green); font-weight:700; font-size:16px;">${r.profit}</div>
+                </div>
+            </div>
+            <p style="color:var(--text-secondary); font-size:14px; line-height:1.6;">"${r.text}"</p>
+        </div>
+    `).join('');
+}
+
+// ─── UTILITIES ───────────────────────────────────────────────
+function showAlert(el, type, message) {
+    if (!el) return;
+    el.className = `alert alert-${type} show`;
+    el.textContent = message;
+    setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+function showToast(message) {
+    const toast = document.getElementById('toastNotification');
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 5000);
+}
+
+function copyToClipboard(text, label) {
+    navigator.clipboard.writeText(text).then(() => {
+        showToast(`✅ ${label} copied to clipboard!`);
+    }).catch(() => {
+        // Fallback
+        const el = document.createElement('textarea');
+        el.value = text;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        showToast(`✅ ${label} copied!`);
+    });
+}
+
+function saveCurrentUser() {
+    if (!currentUser) return;
+    users[currentUser.email] = currentUser;
+    localStorage.setItem('cpUsers', JSON.stringify(users));
+    updateDashboardUI();
+}
+
+// ─── INIT ────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    initWelcomePage();
+});
+</script>
+
+<!-- ============================================================
+     CRYPTOPRO — REMAINING LAYERS
+     Paste these BEFORE </body> in your cryptopro.html file.
+     Also add the nav button wiring shown at the bottom.
+     ============================================================ -->
+
+<!-- ══════════════════════════════════════════════════════════
+     LAYER 10: PROFILE & SETTINGS
+     ══════════════════════════════════════════════════════════ -->
+<div id="profileLayer" class="layer">
+    <nav class="navbar">
+        <div class="logo" onclick="showLayer('dashboardLayer')">
+            <div class="logo-icon">₿</div><span>CryptoPro</span>
+        </div>
+        <div class="nav-links">
+            <button class="nav-btn btn-login" onclick="showLayer('dashboardLayer')">← Dashboard</button>
+        </div>
+    </nav>
+    <div class="container">
+        <div style="max-width:700px; margin:0 auto;">
+
+            <!-- Avatar + Name Banner -->
+            <div style="background:linear-gradient(135deg,#1E2329,#2B3139); border:1px solid var(--border-color); border-radius:20px; padding:32px; margin-bottom:20px; text-align:center; position:relative; overflow:hidden;">
+                <div style="position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:rgba(14,203,129,0.08);border-radius:50%;"></div>
+                <div id="profileAvatar" style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--accent-green),var(--accent-blue));display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 16px;border:4px solid var(--accent-green);">😊</div>
+                <div style="font-size:26px; font-weight:800;" id="profileNameDisplay">Trader</div>
+                <div style="color:var(--text-secondary); font-size:14px; margin-top:4px;" id="profileEmailDisplay">—</div>
+                <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(14,203,129,0.12);border:1px solid rgba(14,203,129,0.3);border-radius:20px;padding:6px 16px;margin-top:12px;">
+                    <div style="width:8px;height:8px;border-radius:50%;background:var(--accent-green);animation:pulse 2s infinite;"></div>
+                    <span style="font-size:13px;color:var(--accent-green);font-weight:600;" id="profileKycBadge">KYC Pending</span>
+                </div>
+            </div>
+
+            <!-- Stats Row -->
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+                <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;padding:16px;text-align:center;">
+                    <div style="font-size:24px;font-weight:900;color:var(--accent-green);" id="profileBalance">$0</div>
+                    <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;">Balance</div>
+                </div>
+                <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;padding:16px;text-align:center;">
+                    <div style="font-size:24px;font-weight:900;color:var(--accent-yellow);" id="profileReferrals">0</div>
+                    <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;">Referrals</div>
+                </div>
+                <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;padding:16px;text-align:center;">
+                    <div style="font-size:24px;font-weight:900;color:var(--accent-blue);" id="profileTxCount">0</div>
+                    <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;">Transactions</div>
+                </div>
+            </div>
+
+            <!-- Edit Profile -->
+            <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:16px;padding:24px;margin-bottom:20px;">
+                <h3 style="color:var(--accent-green);margin-bottom:20px;font-size:18px;">✏️ Edit Profile</h3>
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="editName" placeholder="Your full name">
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="editPhone" placeholder="+1 234 567 8900">
+                </div>
+                <div class="form-group">
+                    <label>Country</label>
+                    <select id="editCountry">
+                        <option value="">Select country</option>
+                        <option>Kenya</option><option>Nigeria</option><option>Ghana</option>
+                        <option>South Africa</option><option>Uganda</option><option>Tanzania</option>
+                        <option>United Kingdom</option><option>United States</option><option>India</option>
+                        <option>Philippines</option><option>Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Bio / About</label>
+                    <textarea id="editBio" rows="3" placeholder="Tell us about yourself..."></textarea>
+                </div>
+                <button class="btn-submit" onclick="saveProfile()">💾 Save Changes</button>
+            </div>
+
+            <!-- Change Password -->
+            <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:16px;padding:24px;margin-bottom:20px;">
+                <h3 style="color:var(--accent-yellow);margin-bottom:20px;font-size:18px;">🔒 Change Password</h3>
+                <div id="pwAlert" class="alert"></div>
+                <div class="form-group">
+                    <label>Current Password</label>
+                    <input type="password" id="currentPw" placeholder="Current password">
+                </div>
+                <div class="form-group">
+                    <label>New Password</label>
+                    <input type="password" id="newPw" placeholder="New password">
+                </div>
+                <div class="form-group">
+                    <label>Confirm New Password</label>
+                    <input type="password" id="confirmPw" placeholder="Repeat new password">
+                </div>
+                <button class="btn-submit" style="background:linear-gradient(135deg,#FCD535,#f59e0b);color:#000;" onclick="changePassword()">🔑 Update Password</button>
+            </div>
+
+            <!-- Danger Zone -->
+            <div style="background:rgba(246,70,93,0.06);border:1px solid rgba(246,70,93,0.2);border-radius:16px;padding:24px;margin-bottom:20px;">
+                <h3 style="color:var(--accent-red);margin-bottom:12px;font-size:18px;">⚠️ Account Actions</h3>
+                <p style="color:var(--text-secondary);font-size:14px;margin-bottom:16px;">These actions are permanent and cannot be undone.</p>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                    <button onclick="handleLogout()" style="padding:12px 20px;background:rgba(246,70,93,0.15);border:1px solid rgba(246,70,93,0.4);border-radius:8px;color:var(--accent-red);cursor:pointer;font-weight:600;">🚪 Logout</button>
+                    <button onclick="showLayer('kycLayer')" style="padding:12px 20px;background:rgba(14,203,129,0.12);border:1px solid rgba(14,203,129,0.4);border-radius:8px;color:var(--accent-green);cursor:pointer;font-weight:600;">🪪 Verify KYC</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     LAYER 11: KYC VERIFICATION
+     ══════════════════════════════════════════════════════════ -->
+<div id="kycLayer" class="layer">
+    <nav class="navbar">
+        <div class="logo" onclick="showLayer('profileLayer')">
+            <div class="logo-icon">₿</div><span>CryptoPro</span>
+        </div>
+        <div class="nav-links">
+            <button class="nav-btn btn-login" onclick="showLayer('profileLayer')">← Profile</button>
+        </div>
+    </nav>
+    <div class="container">
+        <div style="max-width:600px;margin:0 auto;">
+
+            <!-- Status Timeline -->
+            <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:16px;padding:28px;margin-bottom:20px;">
+                <h2 style="font-size:24px;font-weight:700;margin-bottom:6px;">🪪 KYC Verification</h2>
+                <p style="color:var(--text-secondary);font-size:14px;margin-bottom:24px;">Complete your identity check to unlock higher withdrawal limits and full platform access.</p>
+
+                <div id="kycTimeline">
+                    <!-- Steps rendered by JS -->
+                </div>
+            </div>
+
+            <!-- Step Forms -->
+            <div id="kycStep1Form" style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:16px;padding:28px;margin-bottom:20px;">
+                <h3 style="color:var(--accent-green);margin-bottom:20px;">Step 1 — Personal Information</h3>
+                <div class="form-group">
+                    <label>Legal First Name</label>
+                    <input type="text" id="kycFirstName" placeholder="As on your ID">
+                </div>
+                <div class="form-group">
+                    <label>Legal Last Name</label>
+                    <input type="text" id="kycLastName" placeholder="As on your ID">
+                </div>
+                <div class="form-group">
+                    <label>Date of Birth</label>
+                    <input type="date" id="kycDob">
+                </div>
+                <div class="form-group">
+                    <label>Nationality</label>
+                    <select id="kycNationality">
+                        <option value="">Select nationality</option>
+                        <option>Kenyan</option><option>Nigerian</option><option>Ghanaian</option>
+                        <option>South African</option><option>British</option><option>American</option>
+                        <option>Indian</option><option>Filipino</option><option>Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Residential Address</label>
+                    <textarea id="kycAddress" rows="2" placeholder="Full address including city and country"></textarea>
+                </div>
+                <button class="btn-submit" onclick="submitKycStep1()">Continue → Step 2</button>
+            </div>
+
+            <div id="kycStep2Form" style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:16px;padding:28px;margin-bottom:20px;display:none;">
+                <h3 style="color:var(--accent-green);margin-bottom:20px;">Step 2 — Document Upload</h3>
+                <div style="display:grid;gap:16px;">
+                    <div style="background:var(--bg-tertiary);border:2px dashed var(--border-color);border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:all 0.3s;" onmouseover="this.style.borderColor='var(--accent-green)'" onmouseout="this.style.borderColor='var(--border-color)'" onclick="simulateUpload('idFront')">
+                        <div style="font-size:36px;margin-bottom:8px;">🪪</div>
+                        <div style="font-weight:600;margin-bottom:4px;">ID / Passport — Front</div>
+                        <div style="font-size:12px;color:var(--text-secondary);">Click to upload (JPG, PNG, PDF)</div>
+                        <div id="idFrontStatus" style="margin-top:8px;font-size:13px;color:var(--accent-yellow);"></div>
+                    </div>
+                    <div style="background:var(--bg-tertiary);border:2px dashed var(--border-color);border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:all 0.3s;" onmouseover="this.style.borderColor='var(--accent-green)'" onmouseout="this.style.borderColor='var(--border-color)'" onclick="simulateUpload('idBack')">
+                        <div style="font-size:36px;margin-bottom:8px;">🪪</div>
+                        <div style="font-weight:600;margin-bottom:4px;">ID / Passport — Back</div>
+                        <div style="font-size:12px;color:var(--text-secondary);">Click to upload (JPG, PNG, PDF)</div>
+                        <div id="idBackStatus" style="margin-top:8px;font-size:13px;color:var(--accent-yellow);"></div>
+                    </div>
+                    <div style="background:var(--bg-tertiary);border:2px dashed var(--border-color);border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:all 0.3s;" onmouseover="this.style.borderColor='var(--accent-green)'" onmouseout="this.style.borderColor='var(--border-color)'" onclick="simulateUpload('selfie')">
+                        <div style="font-size:36px;margin-bottom:8px;">🤳</div>
+                        <div style="font-weight:600;margin-bottom:4px;">Selfie with ID</div>
+                        <div style="font-size:12px;color:var(--text-secondary);">Hold your ID next to your face</div>
+                        <div id="selfieStatus" style="margin-top:8px;font-size:13px;color:var(--accent-yellow);"></div>
+                    </div>
+                </div>
+                <button class="btn-submit" style="margin-top:20px;" onclick="submitKycStep2()">Submit for Review</button>
+            </div>
+
+            <div id="kycCompleteMsg" style="display:none;text-align:center;background:rgba(14,203,129,0.1);border:2px solid var(--accent-green);border-radius:16px;padding:40px;margin-bottom:20px;">
+                <div style="font-size:64px;margin-bottom:16px;">✅</div>
+                <h3 style="font-size:24px;font-weight:700;color:var(--accent-green);margin-bottom:8px;">Verification Submitted!</h3>
+                <p style="color:var(--text-secondary);line-height:1.6;">Your documents are under review. This usually takes <strong style="color:#fff;">1–3 business days</strong>. We'll notify you via email once approved.</p>
+                <button class="btn-submit" style="margin-top:24px;max-width:220px;" onclick="showLayer('dashboardLayer')">Back to Dashboard</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     LAYER 12: NOTIFICATIONS
+     ══════════════════════════════════════════════════════════ -->
+<div id="notificationsLayer" class="layer">
+    <nav class="navbar">
+        <div class="logo" onclick="showLayer('dashboardLayer')">
+            <div class="logo-icon">₿</div><span>CryptoPro</span>
+        </div>
+        <div class="nav-links">
+            <button class="nav-btn btn-login" onclick="showLayer('dashboardLayer')">← Dashboard</button>
+            <button class="nav-btn btn-signup" onclick="markAllRead()" style="background:transparent;border:2px solid var(--accent-blue);color:var(--accent-blue);">Mark All Read</button>
+        </div>
+    </nav>
+    <div class="container">
+        <div style="max-width:700px;margin:0 auto;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                <h2 style="font-size:26px;font-weight:700;">🔔 Notifications</h2>
+                <div id="notifUnreadBadge" style="background:var(--accent-red);color:#fff;border-radius:20px;padding:4px 12px;font-size:13px;font-weight:700;"></div>
+            </div>
+
+            <!-- Filter Tabs -->
+            <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
+                <button id="notifTabAll" onclick="filterNotifs('all')" style="padding:8px 16px;border-radius:20px;border:none;background:var(--accent-green);color:#fff;cursor:pointer;font-weight:600;font-size:13px;">All</button>
+                <button id="notifTabProfit" onclick="filterNotifs('profit')" style="padding:8px 16px;border-radius:20px;border:1px solid var(--border-color);background:var(--bg-tertiary);color:var(--text-secondary);cursor:pointer;font-size:13px;">💰 Profit</button>
+                <button id="notifTabDeposit" onclick="filterNotifs('deposit')" style="padding:8px 16px;border-radius:20px;border:1px solid var(--border-color);background:var(--bg-tertiary);color:var(--text-secondary);cursor:pointer;font-size:13px;">📥 Deposit</button>
+                <button id="notifTabWithdraw" onclick="filterNotifs('withdraw')" style="padding:8px 16px;border-radius:20px;border:1px solid var(--border-color);background:var(--bg-tertiary);color:var(--text-secondary);cursor:pointer;font-size:13px;">📤 Withdraw</button>
+                <button id="notifTabSystem" onclick="filterNotifs('system')" style="padding:8px 16px;border-radius:20px;border:1px solid var(--border-color);background:var(--bg-tertiary);color:var(--text-secondary);cursor:pointer;font-size:13px;">⚙️ System</button>
+            </div>
+
+            <div id="notificationsList"></div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     LAYER 13: LEADERBOARD
+     ══════════════════════════════════════════════════════════ -->
+<div id="leaderboardLayer" class="layer">
+    <nav class="navbar">
+        <div class="logo" onclick="showLayer('welcomeLayer')">
+            <div class="logo-icon">₿</div><span>CryptoPro</span>
+        </div>
+        <div class="nav-links">
+            <button class="nav-btn btn-login" onclick="showLayer('dashboardLayer')">← Dashboard</button>
+        </div>
+    </nav>
+    <div class="container">
+
+        <!-- Hero Banner -->
+        <div style="background:linear-gradient(135deg,rgba(252,213,53,0.15),rgba(14,203,129,0.15));border:2px solid rgba(252,213,53,0.4);border-radius:20px;padding:32px;margin-bottom:24px;text-align:center;">
+            <div style="font-size:52px;margin-bottom:8px;">🏆</div>
+            <h2 style="font-size:32px;font-weight:800;background:linear-gradient(135deg,#FCD535,#0ECB81);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Global Leaderboard</h2>
+            <p style="color:var(--text-secondary);margin-top:8px;">Top performers this week — based on total profit earned</p>
+        </div>
+
+        <!-- Period Tabs -->
+        <div style="display:flex;gap:10px;justify-content:center;margin-bottom:24px;flex-wrap:wrap;">
+            <button id="lbWeek" onclick="loadLeaderboard('week',this)" style="padding:10px 24px;border-radius:20px;border:none;background:var(--accent-green);color:#fff;cursor:pointer;font-weight:700;">This Week</button>
+            <button id="lbMonth" onclick="loadLeaderboard('month',this)" style="padding:10px 24px;border-radius:20px;border:1px solid var(--border-color);background:var(--bg-tertiary);color:var(--text-secondary);cursor:pointer;">This Month</button>
+            <button id="lbAllTime" onclick="loadLeaderboard('alltime',this)" style="padding:10px 24px;border-radius:20px;border:1px solid var(--border-color);background:var(--bg-tertiary);color:var(--text-secondary);cursor:pointer;">All Time</button>
+        </div>
+
+        <!-- Top 3 Podium -->
+        <div id="lbPodium" style="display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:12px;margin-bottom:24px;align-items:end;max-width:700px;margin-left:auto;margin-right:auto;"></div>
+
+        <!-- Full Table -->
+        <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:16px;overflow:hidden;margin-bottom:24px;">
+            <div style="padding:16px 20px;border-bottom:1px solid var(--border-color);display:grid;grid-template-columns:48px 1fr 100px 100px;gap:8px;">
+                <span style="color:var(--text-secondary);font-size:12px;text-transform:uppercase;">#</span>
+                <span style="color:var(--text-secondary);font-size:12px;text-transform:uppercase;">Trader</span>
+                <span style="color:var(--text-secondary);font-size:12px;text-transform:uppercase;text-align:right;">Profit</span>
+                <span style="color:var(--text-secondary);font-size:12px;text-transform:uppercase;text-align:right;">ROI</span>
+            </div>
+            <div id="leaderboardTable"></div>
+        </div>
+
+        <!-- Your Rank -->
+        <div id="yourRankCard" style="background:rgba(14,203,129,0.1);border:2px solid rgba(14,203,129,0.4);border-radius:12px;padding:20px;text-align:center;display:none;">
+            <p style="color:var(--text-secondary);font-size:13px;">Your Current Rank</p>
+            <p style="font-size:36px;font-weight:900;color:var(--accent-green);" id="yourRankNumber">#—</p>
+            <p style="color:var(--text-secondary);font-size:13px;">Keep trading to climb higher! 🚀</p>
+        </div>
+    </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     LAYER 14: TRADING BOT CONTROL
+     ══════════════════════════════════════════════════════════ -->
+<div id="tradingBotLayer" class="layer">
+    <nav class="navbar">
+        <div class="logo" onclick="showLayer('dashboardLayer')">
+            <div class="logo-icon">₿</div><span>CryptoPro</span>
+        </div>
+        <div class="nav-links">
+            <button class="nav-btn btn-login" onclick="showLayer('dashboardLayer')">← Dashboard</button>
+        </div>
+    </nav>
+    <div class="container">
+
+        <div style="text-align:center;margin-bottom:28px;">
+            <h2 style="font-size:30px;font-weight:800;background:linear-gradient(135deg,var(--accent-blue),var(--accent-green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">🤖 AI Trading Bots</h2>
+            <p style="color:var(--text-secondary);margin-top:6px;">Automated strategies working 24/7 to grow your portfolio</p>
+        </div>
+
+        <!-- Overall Bot Status -->
+        <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:16px;padding:24px;margin-bottom:24px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+                <div>
+                    <div style="font-size:13px;color:var(--text-secondary);margin-bottom:4px;">Master Bot Status</div>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <div id="masterBotDot" style="width:12px;height:12px;border-radius:50%;background:var(--accent-green);animation:pulse 2s infinite;"></div>
+                        <span id="masterBotStatus" style="font-size:20px;font-weight:700;color:var(--accent-green);">RUNNING</span>
+                    </div>
+                </div>
+                <div style="display:flex;gap:12px;">
+                    <button id="masterStartBtn" onclick="toggleMasterBot(true)" style="padding:12px 24px;background:linear-gradient(135deg,var(--accent-green),#0B8F5F);border:none;border-radius:10px;color:#fff;font-weight:700;cursor:pointer;">▶ Start All</button>
+                    <button id="masterStopBtn" onclick="toggleMasterBot(false)" style="padding:12px 24px;background:rgba(246,70,93,0.15);border:1px solid rgba(246,70,93,0.4);border-radius:10px;color:var(--accent-red);font-weight:700;cursor:pointer;">⏹ Stop All</button>
+                </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-top:20px;">
+                <div style="text-align:center;background:var(--bg-tertiary);padding:12px;border-radius:8px;">
+                    <div style="font-size:22px;font-weight:900;color:var(--accent-green);" id="botTotalTrades">0</div>
+                    <div style="font-size:11px;color:var(--text-secondary);">Total Trades</div>
+                </div>
+                <div style="text-align:center;background:var(--bg-tertiary);padding:12px;border-radius:8px;">
+                    <div style="font-size:22px;font-weight:900;color:var(--accent-yellow);" id="botWinRate">0%</div>
+                    <div style="font-size:11px;color:var(--text-secondary);">Win Rate</div>
+                </div>
+                <div style="text-align:center;background:var(--bg-tertiary);padding:12px;border-radius:8px;">
+                    <div style="font-size:22px;font-weight:900;color:var(--accent-blue);" id="botTodayProfit">$0.00</div>
+                    <div style="font-size:11px;color:var(--text-secondary);">Today's Profit</div>
+                </div>
+                <div style="text-align:center;background:var(--bg-tertiary);padding:12px;border-radius:8px;">
+                    <div style="font-size:22px;font-weight:900;color:var(--accent-green);" id="botActiveBots">0</div>
+                    <div style="font-size:11px;color:var(--text-secondary);">Active Bots</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Individual Bots -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin-bottom:24px;" id="botCardsGrid"></div>
+
+        <!-- Live Trade Feed -->
+        <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:16px;padding:24px;">
+            <h3 style="color:var(--accent-green);margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+                <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-green);animation:pulse 1.5s infinite;display:inline-block;"></span>
+                Live Trade Feed
+            </h3>
+            <div id="liveTradeFeed" style="height:280px;overflow-y:auto;font-size:13px;font-family:monospace;"></div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     LAYER 15: ADMIN PANEL
+     ══════════════════════════════════════════════════════════ -->
+<div id="adminLayer" class="layer">
+    <nav class="navbar" style="background:rgba(246,70,93,0.08);border-bottom-color:rgba(246,70,93,0.2);">
+        <div class="logo" style="color:var(--accent-red);" onclick="showLayer('adminLayer')">
+            <div class="logo-icon" style="background:linear-gradient(135deg,var(--accent-red),#c0392b);">⚙</div>
+            <span>Admin Panel</span>
+        </div>
+        <div class="nav-links">
+            <div class="status-badge" style="background:rgba(246,70,93,0.1);color:var(--accent-red);">
+                <div class="status-dot" style="background:var(--accent-red);"></div>
+                <span>ADMIN MODE</span>
+            </div>
+            <button class="nav-btn btn-login" onclick="showLayer('dashboardLayer')">← Exit Admin</button>
+        </div>
+    </nav>
+    <div class="container">
+
+        <!-- Admin Stats -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px;" id="adminStatsGrid"></div>
+
+        <!-- Tabs -->
+        <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;border-bottom:1px solid var(--border-color);padding-bottom:12px;">
+            <button onclick="adminTab('users',this)" id="aTabUsers" style="padding:10px 20px;border-radius:8px;border:none;background:var(--accent-red);color:#fff;cursor:pointer;font-weight:700;">👥 Users</button>
+            <button onclick="adminTab('deposits',this)" id="aTabDeposits" style="padding:10px 20px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-tertiary);color:var(--text-secondary);cursor:pointer;">💰 Deposits</button>
+            <button onclick="adminTab('withdrawals',this)" id="aTabWithdrawals" style="padding:10px 20px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-tertiary);color:var(--text-secondary);cursor:pointer;">💸 Withdrawals</button>
+            <button onclick="adminTab('broadcast',this)" id="aTabBroadcast" style="padding:10px 20px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-tertiary);color:var(--text-secondary);cursor:pointer;">📢 Broadcast</button>
+        </div>
+
+        <!-- Users Tab -->
+        <div id="adminTabUsers">
+            <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
+                <input type="text" id="adminSearch" placeholder="Search by name or email…" oninput="renderAdminUsers()" style="flex:1;padding:10px 14px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-tertiary);color:var(--text-primary);min-width:200px;">
+            </div>
+            <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;overflow:hidden;">
+                <div style="display:grid;grid-template-columns:1fr 80px 140px 100px 120px 120px;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border-color);background:var(--bg-tertiary);">
+                    <span style="color:var(--text-secondary);font-size:12px;text-transform:uppercase;">User</span>
+                    <span style="color:var(--text-secondary);font-size:12px;text-transform:uppercase;text-align:center;">Type</span>
+                    <span style="color:var(--text-secondary);font-size:12px;text-transform:uppercase;">Joined</span>
+                    <span style="color:var(--text-secondary);font-size:12px;text-transform:uppercase;text-align:right;">Balance</span>
+                    <span style="color:var(--text-secondary);font-size:12px;text-transform:uppercase;text-align:center;">KYC</span>
+                    <span style="color:var(--text-secondary);font-size:12px;text-transform:uppercase;text-align:center;">Actions</span>
+                </div>
+                <div id="adminUsersTable"></div>
+            </div>
+        </div>
+
+        <!-- Deposits Tab -->
+        <div id="adminTabDeposits" style="display:none;">
+            <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;overflow:hidden;">
+                <div id="adminDepositsTable"></div>
+            </div>
+        </div>
+
+        <!-- Withdrawals Tab -->
+        <div id="adminTabWithdrawals" style="display:none;">
+            <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;overflow:hidden;">
+                <div id="adminWithdrawalsTable"></div>
+            </div>
+        </div>
+
+        <!-- Broadcast Tab -->
+        <div id="adminTabBroadcast" style="display:none;">
+            <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:16px;padding:28px;">
+                <h3 style="color:var(--accent-red);margin-bottom:20px;">📢 Send Broadcast Message</h3>
+                <div class="form-group">
+                    <label>Message Title</label>
+                    <input type="text" id="broadcastTitle" placeholder="e.g. System Maintenance Notice">
+                </div>
+                <div class="form-group">
+                    <label>Message Body</label>
+                    <textarea id="broadcastBody" rows="5" placeholder="Type your message to all users…"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Message Type</label>
+                    <select id="broadcastType">
+                        <option value="system">⚙️ System</option>
+                        <option value="profit">💰 Profit Alert</option>
+                        <option value="deposit">📥 Deposit</option>
+                    </select>
+                </div>
+                <button class="btn-submit" style="background:linear-gradient(135deg,var(--accent-red),#c0392b);" onclick="sendBroadcast()">📢 Send to All Users</button>
+            </div>
+        </div>
+
+        <!-- Modals -->
+        <div id="adminUserModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:5000;align-items:center;justify-content:center;">
+            <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:16px;padding:28px;max-width:480px;width:90%;position:relative;">
+                <button onclick="closeAdminModal()" style="position:absolute;top:12px;right:16px;background:none;border:none;color:var(--text-secondary);font-size:22px;cursor:pointer;">×</button>
+                <h3 style="color:var(--accent-red);margin-bottom:20px;" id="adminModalTitle">Edit User</h3>
+                <div id="adminModalBody"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     JAVASCRIPT FOR ALL NEW LAYERS
+     ══════════════════════════════════════════════════════════ -->
+<script>
+/* ───────────────────────────────────────────────
+   Patch showLayer to wire new layers
+─────────────────────────────────────────────── */
+const _origShowLayer = typeof showLayer === 'function' ? showLayer : null;
+showLayer = function(id) {
+    if (_origShowLayer) _origShowLayer(id);
+    if (id === 'profileLayer')       initProfile();
+    if (id === 'kycLayer')           initKyc();
+    if (id === 'notificationsLayer') initNotifications();
+    if (id === 'leaderboardLayer')   initLeaderboard();
+    if (id === 'tradingBotLayer')    initTradingBots();
+    if (id === 'adminLayer')         initAdmin();
+};
+
+/* ═══════════════════════════════════════════════
+   LAYER 10 — PROFILE
+═══════════════════════════════════════════════ */
+function initProfile() {
+    if (!currentUser) { showLayer('loginLayer'); return; }
+    document.getElementById('profileNameDisplay').textContent = currentUser.name;
+    document.getElementById('profileEmailDisplay').textContent = currentUser.email;
+    document.getElementById('profileBalance').textContent = '$' + currentUser.balance.toFixed(2);
+    document.getElementById('profileReferrals').textContent = (currentUser.referrals || []).length;
+    document.getElementById('profileTxCount').textContent = (currentUser.transactions || []).length;
+    document.getElementById('editName').value = currentUser.name || '';
+    document.getElementById('editPhone').value = currentUser.phone || '';
+    document.getElementById('editCountry').value = currentUser.country || '';
+    document.getElementById('editBio').value = currentUser.bio || '';
+    const kyc = currentUser.kycStatus;
+    const badge = document.getElementById('profileKycBadge');
+    if (kyc === 'approved')  { badge.textContent = '✅ KYC Verified'; badge.style.color = 'var(--accent-green)'; }
+    else if (kyc === 'pending') { badge.textContent = '⏳ KYC Under Review'; badge.style.color = 'var(--accent-yellow)'; }
+    else { badge.textContent = '❌ KYC Not Submitted'; badge.style.color = 'var(--accent-red)'; }
+}
+
+function saveProfile() {
+    if (!currentUser) return;
+    currentUser.name = document.getElementById('editName').value.trim() || currentUser.name;
+    currentUser.phone = document.getElementById('editPhone').value.trim();
+    currentUser.country = document.getElementById('editCountry').value;
+    currentUser.bio = document.getElementById('editBio').value.trim();
+    saveCurrentUser();
+    showToast('✅ Profile updated successfully!');
+    initProfile();
+}
+
+function changePassword() {
+    const cur = document.getElementById('currentPw').value;
+    const nw = document.getElementById('newPw').value;
+    const cf = document.getElementById('confirmPw').value;
+    const alertEl = document.getElementById('pwAlert');
+    if (!cur || !nw || !cf) { showAlert(alertEl, 'error', 'All fields are required.'); return; }
+    if (currentUser.password !== cur) { showAlert(alertEl, 'error', 'Current password is incorrect.'); return; }
+    if (nw !== cf) { showAlert(alertEl, 'error', 'New passwords do not match.'); return; }
+    if (nw.length < 6) { showAlert(alertEl, 'error', 'Password must be at least 6 characters.'); return; }
+    currentUser.password = nw;
+    saveCurrentUser();
+    document.getElementById('currentPw').value = '';
+    document.getElementById('newPw').value = '';
+    document.getElementById('confirmPw').value = '';
+    showAlert(alertEl, 'success', '✅ Password changed successfully!');
+}
+
+
+/* ═══════════════════════════════════════════════
+   LAYER 11 — KYC
+═══════════════════════════════════════════════ */
+const KYC_STEPS = [
+    { label: 'Personal Information', icon: '👤' },
+    { label: 'Document Upload', icon: '🪪' },
+    { label: 'Review & Approval', icon: '✅' }
+];
+let kycCurrentStep = 0;
+const kycUploads = { idFront: false, idBack: false, selfie: false };
+
+function initKyc() {
+    if (!currentUser) return;
+    const status = currentUser.kycStatus;
+    kycCurrentStep = status === 'submitted' || status === 'approved' ? 2 : 0;
+    renderKycTimeline();
+    document.getElementById('kycStep1Form').style.display = kycCurrentStep === 0 ? 'block' : 'none';
+    document.getElementById('kycStep2Form').style.display = kycCurrentStep === 1 ? 'block' : 'none';
+    document.getElementById('kycCompleteMsg').style.display = kycCurrentStep === 2 ? 'block' : 'none';
+}
+
+function renderKycTimeline() {
+    const container = document.getElementById('kycTimeline');
+    container.innerHTML = KYC_STEPS.map((s, i) => {
+        const done = i < kycCurrentStep;
+        const active = i === kycCurrentStep;
+        return `
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 0;${i < KYC_STEPS.length - 1 ? 'border-bottom:1px solid var(--border-color);' : ''}">
+            <div style="width:40px;height:40px;border-radius:50%;background:${done ? 'var(--accent-green)' : active ? 'rgba(14,203,129,0.2)' : 'var(--bg-tertiary)'};border:2px solid ${done || active ? 'var(--accent-green)' : 'var(--border-color)'};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
+                ${done ? '✓' : s.icon}
+            </div>
+            <div>
+                <div style="font-weight:600;color:${active ? '#fff' : done ? 'var(--accent-green)' : 'var(--text-secondary)'};">Step ${i+1}: ${s.label}</div>
+                <div style="font-size:12px;color:var(--text-secondary);">${done ? 'Completed' : active ? 'In Progress' : 'Pending'}</div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function submitKycStep1() {
+    const fn = document.getElementById('kycFirstName').value.trim();
+    const ln = document.getElementById('kycLastName').value.trim();
+    const dob = document.getElementById('kycDob').value;
+    const nat = document.getElementById('kycNationality').value;
+    const addr = document.getElementById('kycAddress').value.trim();
+    if (!fn || !ln || !dob || !nat || !addr) { showToast('⚠️ Please fill in all fields.'); return; }
+    kycCurrentStep = 1;
+    renderKycTimeline();
+    document.getElementById('kycStep1Form').style.display = 'none';
+    document.getElementById('kycStep2Form').style.display = 'block';
+    if (currentUser) { currentUser.kycInfo = { fn, ln, dob, nat, addr }; saveCurrentUser(); }
+}
+
+function simulateUpload(field) {
+    const el = document.getElementById(field + 'Status');
+    el.textContent = '⏳ Uploading…';
+    el.style.color = 'var(--accent-yellow)';
+    setTimeout(() => {
+        kycUploads[field] = true;
+        el.textContent = '✅ Uploaded successfully';
+        el.style.color = 'var(--accent-green)';
+    }, 1200 + Math.random() * 600);
+}
+
+function submitKycStep2() {
+    const pending = Object.entries(kycUploads).filter(([,v]) => !v).map(([k]) => k);
+    if (pending.length) { showToast('⚠️ Please upload all required documents first.'); return; }
+    kycCurrentStep = 2;
+    renderKycTimeline();
+    document.getElementById('kycStep2Form').style.display = 'none';
+    document.getElementById('kycCompleteMsg').style.display = 'block';
+    if (currentUser) { currentUser.kycStatus = 'submitted'; saveCurrentUser(); }
+    showToast('🎉 KYC documents submitted! We\'ll review within 1-3 business days.');
+}
+
+
+/* ═══════════════════════════════════════════════
+   LAYER 12 — NOTIFICATIONS
+═══════════════════════════════════════════════ */
+const SYSTEM_NOTIFICATIONS = [
+    { id: 'n1', type: 'profit', icon: '💰', title: 'Daily Profit Credited', body: 'Your AI bot generated $12.45 in profits today. Keep it up!', time: '2 mins ago', read: false },
+    { id: 'n2', type: 'system', icon: '🔐', title: 'Login from New Device', body: 'A login was detected from a new browser. If this wasn\'t you, change your password immediately.', time: '1 hour ago', read: false },
+    { id: 'n3', type: 'deposit', icon: '📥', title: 'Deposit Confirmed', body: 'Your deposit of $200 has been confirmed and added to your balance.', time: '3 hours ago', read: false },
+    { id: 'n4', type: 'withdraw', icon: '📤', title: 'Withdrawal Processing', body: 'Your withdrawal request of $150 is being processed. Expected delivery: 1–24 hours.', time: 'Yesterday', read: true },
+    { id: 'n5', type: 'profit', icon: '🚀', title: 'Milestone Reached!', body: 'Congratulations! You\'ve earned a total of $500 in profits on CryptoPro. Keep trading!', time: '2 days ago', read: true },
+    { id: 'n6', type: 'system', icon: '🎁', title: 'Referral Bonus Received', body: 'Your referral signed up and made a deposit. $25 bonus credited to your account!', time: '3 days ago', read: true },
+    { id: 'n7', type: 'system', icon: '⚙️', title: 'Platform Update', body: 'CryptoPro v2.1 is live! New features include enhanced bot controls and improved charts.', time: '5 days ago', read: true },
+];
+
+let notifFilter = 'all';
+let notifData = [...SYSTEM_NOTIFICATIONS];
+
+function initNotifications() {
+    if (currentUser && currentUser.transactions) {
+        currentUser.transactions.slice().reverse().slice(0, 5).forEach((tx, i) => {
+            notifData.unshift({
+                id: 'tx' + i, type: tx.type, icon: tx.type === 'deposit' ? '📥' : tx.type === 'withdraw' ? '📤' : '💰',
+                title: tx.desc, body: `Amount: $${parseFloat(tx.amount).toFixed(2)} — Status: ${tx.status}`,
+                time: tx.date, read: true
+            });
+        });
+    }
+    renderNotifications();
+}
+
+function renderNotifications() {
+    const list = document.getElementById('notificationsList');
+    const badge = document.getElementById('notifUnreadBadge');
+    const filtered = notifFilter === 'all' ? notifData : notifData.filter(n => n.type === notifFilter);
+    const unread = notifData.filter(n => !n.read).length;
+    badge.textContent = unread > 0 ? unread + ' Unread' : 'All Read';
+    badge.style.background = unread > 0 ? 'var(--accent-red)' : 'var(--accent-green)';
+
+    if (!filtered.length) {
+        list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary);">No notifications in this category.</div>';
+        return;
+    }
+    list.innerHTML = filtered.map(n => `
+        <div onclick="markRead('${n.id}')" style="display:flex;gap:14px;padding:16px 20px;border-bottom:1px solid var(--border-color);cursor:pointer;background:${n.read ? 'transparent' : 'rgba(14,203,129,0.04)'};transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='${n.read ? 'transparent' : 'rgba(14,203,129,0.04)'}'">
+            <div style="width:44px;height:44px;border-radius:12px;background:var(--bg-tertiary);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">${n.icon}</div>
+            <div style="flex:1;min-width:0;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+                    <div style="font-weight:${n.read ? '500' : '700'};color:var(--text-primary);font-size:14px;">${n.title}</div>
+                    <div style="font-size:11px;color:var(--text-secondary);white-space:nowrap;flex-shrink:0;">${n.time}</div>
+                </div>
+                <div style="font-size:13px;color:var(--text-secondary);margin-top:3px;line-height:1.4;">${n.body}</div>
+            </div>
+            ${!n.read ? '<div style="width:8px;height:8px;border-radius:50%;background:var(--accent-green);flex-shrink:0;margin-top:6px;"></div>' : ''}
+        </div>
+    `).join('');
+}
+
+function filterNotifs(type) {
+    notifFilter = type;
+    document.querySelectorAll('[id^="notifTab"]').forEach(b => {
+        b.style.background = 'var(--bg-tertiary)';
+        b.style.color = 'var(--text-secondary)';
+        b.style.border = '1px solid var(--border-color)';
+    });
+    const active = document.getElementById('notifTab' + type.charAt(0).toUpperCase() + type.slice(1));
+    if (active) { active.style.background = 'var(--accent-green)'; active.style.color = '#fff'; active.style.border = 'none'; }
+    renderNotifications();
+}
+
+function markRead(id) {
+    const n = notifData.find(x => x.id === id);
+    if (n) { n.read = true; renderNotifications(); }
+}
+
+function markAllRead() {
+    notifData.forEach(n => n.read = true);
+    renderNotifications();
+    showToast('✅ All notifications marked as read.');
+}
+
+
+/* ═══════════════════════════════════════════════
+   LAYER 13 — LEADERBOARD
+═══════════════════════════════════════════════ */
+const LB_DATA = {
+    week: [
+        { name: 'Michael R.', flag: '🇺🇸', profit: 28450, roi: 312, trades: 156, emoji: '😎' },
+        { name: 'Emmanuel O.', flag: '🇨🇮', profit: 19200, roi: 245, trades: 204, emoji: '💪' },
+        { name: 'Liu W.', flag: '🇨🇳', profit: 15800, roi: 198, trades: 133, emoji: '🔥' },
+        { name: 'Sarah W.', flag: '🇬🇧', profit: 12300, roi: 167, trades: 112, emoji: '🚀' },
+        { name: 'Amara K.', flag: '🇳🇬', profit: 9800, roi: 134, trades: 89, emoji: '⚡' },
+        { name: 'Kwame A.', flag: '🇬🇭', profit: 8200, roi: 118, trades: 78, emoji: '💎' },
+        { name: 'Priya S.', flag: '🇮🇳', profit: 7100, roi: 102, trades: 67, emoji: '🌟' },
+        { name: 'Carlos V.', flag: '🇵🇭', profit: 5900, roi: 89, trades: 55, emoji: '🎯' },
+        { name: 'Fatima B.', flag: '🇲🇦', profit: 4800, roi: 76, trades: 48, emoji: '🏅' },
+        { name: 'Daniel M.', flag: '🇺🇬', profit: 3500, roi: 63, trades: 41, emoji: '💫' },
+    ],
+    month: [],
+    alltime: []
+};
+LB_DATA.month = LB_DATA.week.map(u => ({ ...u, profit: u.profit * 4.2, roi: u.roi * 1.3 | 0, trades: u.trades * 4 }));
+LB_DATA.alltime = LB_DATA.week.map(u => ({ ...u, profit: u.profit * 18, roi: u.roi * 2.5 | 0, trades: u.trades * 20 }));
+
+function initLeaderboard() { loadLeaderboard('week', document.getElementById('lbWeek')); }
+
+function loadLeaderboard(period, btn) {
+    ['lbWeek','lbMonth','lbAllTime'].forEach(id => {
+        const b = document.getElementById(id);
+        if (b) { b.style.background = 'var(--bg-tertiary)'; b.style.color = 'var(--text-secondary)'; b.style.border = '1px solid var(--border-color)'; }
+    });
+    if (btn) { btn.style.background = 'var(--accent-green)'; btn.style.color = '#fff'; btn.style.border = 'none'; }
+    const data = LB_DATA[period];
+    renderPodium(data.slice(0, 3));
+    renderLbTable(data);
+    if (currentUser) {
+        const myRank = data.findIndex(u => u.name.toLowerCase().includes(currentUser.name.split(' ')[0].toLowerCase())) + 1;
+        const card = document.getElementById('yourRankCard');
+        card.style.display = 'block';
+        document.getElementById('yourRankNumber').textContent = myRank > 0 ? '#' + myRank : '#' + (data.length + 1);
+    }
+}
+
+function renderPodium(top3) {
+    const podium = document.getElementById('lbPodium');
+    const order = [top3[1], top3[0], top3[2]]; // 2nd, 1st, 3rd
+    const heights = ['160px', '200px', '140px'];
+    const colors = ['#848E9C', '#FCD535', '#CD7F32'];
+    const sizes = ['22px', '28px', '20px'];
+    const ranks = ['2nd', '1st', '3rd'];
+    podium.innerHTML = order.map((u, i) => !u ? '' : `
+        <div style="background:var(--bg-secondary);border:2px solid ${colors[i]}44;border-radius:16px;padding:20px;text-align:center;height:${heights[i]};display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;transition:all 0.3s;" onmouseover="this.style.borderColor='${colors[i]}'" onmouseout="this.style.borderColor='${colors[i]}44'">
+            <div style="font-size:32px;">${u.emoji}</div>
+            <div style="font-size:${sizes[i]};font-weight:900;color:${colors[i]};">${ranks[i]}</div>
+            <div style="font-size:13px;font-weight:700;">${u.flag} ${u.name}</div>
+            <div style="font-size:16px;font-weight:900;color:var(--accent-green);">$${u.profit.toLocaleString()}</div>
+            <div style="font-size:11px;color:var(--text-secondary);">+${u.roi}% ROI</div>
+        </div>
+    `).join('');
+}
+
+function renderLbTable(data) {
+    const table = document.getElementById('leaderboardTable');
+    const medals = ['🥇','🥈','🥉'];
+    table.innerHTML = data.map((u, i) => `
+        <div style="display:grid;grid-template-columns:48px 1fr 100px 100px;gap:8px;padding:14px 16px;border-bottom:1px solid var(--border-color);align-items:center;${i < 3 ? 'background:rgba(252,213,53,0.03);' : ''}transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='${i < 3 ? 'rgba(252,213,53,0.03)' : 'transparent'}'">
+            <div style="font-size:${i < 3 ? '22px' : '16px'};font-weight:700;color:var(--text-secondary);">${i < 3 ? medals[i] : '#' + (i+1)}</div>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent-green),var(--accent-blue));display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">${u.emoji}</div>
+                <div>
+                    <div style="font-weight:600;font-size:14px;">${u.flag} ${u.name}</div>
+                    <div style="font-size:11px;color:var(--text-secondary);">${u.trades} trades</div>
+                </div>
+            </div>
+            <div style="text-align:right;font-weight:700;color:var(--accent-green);font-size:14px;">$${u.profit.toLocaleString()}</div>
+            <div style="text-align:right;font-weight:600;color:var(--accent-yellow);font-size:13px;">+${u.roi}%</div>
+        </div>
+    `).join('');
+}
+
+
+/* ═══════════════════════════════════════════════
+   LAYER 14 — TRADING BOTS
+═══════════════════════════════════════════════ */
+const BOT_CONFIGS = [
+    { id: 'btcBot', name: 'BTC Scalper', pair: 'BTC/USDT', strategy: 'Scalping', color: '#F7931A', icon: '₿', winRate: 78, trades: 0, profit: 0, running: true },
+    { id: 'ethBot', name: 'ETH Swing', pair: 'ETH/USDT', strategy: 'Swing Trading', color: '#627EEA', icon: 'Ξ', winRate: 72, trades: 0, profit: 0, running: true },
+    { id: 'altBot', name: 'Altcoin Hunter', pair: 'SOL/BNB/ADA', strategy: 'Momentum', color: '#9945FF', icon: '⚡', winRate: 65, trades: 0, profit: 0, running: false },
+    { id: 'arbBot', name: 'Arbitrage Bot', pair: 'Multi-Exchange', strategy: 'Arbitrage', color: '#0ECB81', icon: '🔄', winRate: 91, trades: 0, profit: 0, running: true },
+];
+let botMasterRunning = true;
+let botFeedInterval = null;
+let botStatsInterval = null;
+
+function initTradingBots() {
+    renderBotCards();
+    updateBotStats();
+    startBotFeed();
+}
+
+function renderBotCards() {
+    const grid = document.getElementById('botCardsGrid');
+    if (!grid) return;
+    grid.innerHTML = BOT_CONFIGS.map(bot => `
+        <div style="background:var(--bg-secondary);border:2px solid ${bot.color}33;border-radius:16px;padding:20px;transition:all 0.3s;" id="card_${bot.id}">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <div style="width:44px;height:44px;border-radius:12px;background:${bot.color}22;border:2px solid ${bot.color}44;display:flex;align-items:center;justify-content:center;font-size:20px;">${bot.icon}</div>
+                    <div>
+                        <div style="font-weight:700;font-size:16px;">${bot.name}</div>
+                        <div style="font-size:12px;color:var(--text-secondary);">${bot.pair} · ${bot.strategy}</div>
+                    </div>
+                </div>
+                <label style="position:relative;display:inline-block;width:48px;height:26px;cursor:pointer;">
+                    <input type="checkbox" id="toggle_${bot.id}" ${bot.running && botMasterRunning ? 'checked' : ''} onchange="toggleBot('${bot.id}',this.checked)" style="opacity:0;width:0;height:0;">
+                    <span style="position:absolute;inset:0;border-radius:13px;background:${bot.running && botMasterRunning ? 'var(--accent-green)' : 'var(--border-color)'};transition:0.3s;" id="toggleTrack_${bot.id}">
+                        <span style="position:absolute;top:3px;left:${bot.running && botMasterRunning ? '25px' : '3px'};width:20px;height:20px;border-radius:50%;background:#fff;transition:0.3s;" id="toggleThumb_${bot.id}"></span>
+                    </span>
+                </label>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+                <div style="background:var(--bg-tertiary);padding:10px;border-radius:8px;text-align:center;">
+                    <div style="font-size:18px;font-weight:900;color:${bot.color};" id="stat_winrate_${bot.id}">${bot.winRate}%</div>
+                    <div style="font-size:10px;color:var(--text-secondary);">Win Rate</div>
+                </div>
+                <div style="background:var(--bg-tertiary);padding:10px;border-radius:8px;text-align:center;">
+                    <div style="font-size:18px;font-weight:900;color:var(--accent-green);" id="stat_profit_${bot.id}">$${bot.profit.toFixed(2)}</div>
+                    <div style="font-size:10px;color:var(--text-secondary);">Today's Profit</div>
+                </div>
+            </div>
+            <!-- Mini progress bar -->
+            <div style="background:var(--bg-tertiary);border-radius:4px;height:6px;overflow:hidden;margin-bottom:8px;">
+                <div id="bar_${bot.id}" style="height:100%;width:${bot.winRate}%;background:linear-gradient(90deg,${bot.color},${bot.color}99);border-radius:4px;transition:width 1s;"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:12px;color:var(--text-secondary);">Trades today: <strong style="color:#fff;" id="stat_trades_${bot.id}">${bot.trades}</strong></span>
+                <span style="font-size:12px;padding:3px 10px;border-radius:20px;background:${bot.running && botMasterRunning ? 'rgba(14,203,129,0.12)' : 'rgba(246,70,93,0.12)'};color:${bot.running && botMasterRunning ? 'var(--accent-green)' : 'var(--accent-red)'};" id="statusLabel_${bot.id}">
+                    ${bot.running && botMasterRunning ? '● Running' : '⏹ Paused'}
+                </span>
+            </div>
+        </div>
+    `).join('');
+}
+
+function toggleBot(botId, on) {
+    const bot = BOT_CONFIGS.find(b => b.id === botId);
+    if (bot) bot.running = on;
+    const track = document.getElementById('toggleTrack_' + botId);
+    const thumb = document.getElementById('toggleThumb_' + botId);
+    const label = document.getElementById('statusLabel_' + botId);
+    if (track) track.style.background = on ? 'var(--accent-green)' : 'var(--border-color)';
+    if (thumb) thumb.style.left = on ? '25px' : '3px';
+    if (label) { label.textContent = on ? '● Running' : '⏹ Paused'; label.style.background = on ? 'rgba(14,203,129,0.12)' : 'rgba(246,70,93,0.12)'; label.style.color = on ? 'var(--accent-green)' : 'var(--accent-red)'; }
+    updateBotStats();
+    showToast(`${on ? '▶ Started' : '⏹ Paused'}: ${bot?.name}`);
+}
+
+function toggleMasterBot(on) {
+    botMasterRunning = on;
+    document.getElementById('masterBotStatus').textContent = on ? 'RUNNING' : 'PAUSED';
+    document.getElementById('masterBotStatus').style.color = on ? 'var(--accent-green)' : 'var(--accent-red)';
+    document.getElementById('masterBotDot').style.background = on ? 'var(--accent-green)' : 'var(--accent-red)';
+    BOT_CONFIGS.forEach(b => toggleBot(b.id, on && b.running));
+}
+
+function updateBotStats() {
+    const activeBots = BOT_CONFIGS.filter(b => b.running && botMasterRunning).length;
+    const totalTrades = BOT_CONFIGS.reduce((a, b) => a + b.trades, 0);
+    const totalProfit = BOT_CONFIGS.reduce((a, b) => a + b.profit, 0);
+    const avgWin = activeBots ? BOT_CONFIGS.filter(b => b.running).reduce((a, b) => a + b.winRate, 0) / activeBots : 0;
+    const el = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+    el('botActiveBots', activeBots);
+    el('botTotalTrades', totalTrades);
+    el('botWinRate', avgWin.toFixed(1) + '%');
+    el('botTodayProfit', '$' + totalProfit.toFixed(2));
+}
+
+function startBotFeed() {
+    if (botFeedInterval) clearInterval(botFeedInterval);
+    const feed = document.getElementById('liveTradeFeed');
+    if (!feed) return;
+    const PAIRS = ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'BNB/USDT', 'ADA/USDT', 'XRP/USDT'];
+    const TYPES = ['BUY', 'SELL'];
+    botFeedInterval = setInterval(() => {
+        const runningBots = BOT_CONFIGS.filter(b => b.running && botMasterRunning);
+        if (!runningBots.length || !document.getElementById('tradingBotLayer').classList.contains('active')) return;
+        const bot = runningBots[Math.floor(Math.random() * runningBots.length)];
+        const type = TYPES[Math.floor(Math.random() * 2)];
+        const pair = PAIRS[Math.floor(Math.random() * PAIRS.length)];
+        const amount = (Math.random() * 450 + 50).toFixed(2);
+        const pnl = (Math.random() > 0.3 ? 1 : -1) * (Math.random() * 12 + 0.5).toFixed(2);
+        const win = parseFloat(pnl) > 0;
+        if (win) { bot.profit += parseFloat(pnl); bot.trades++; }
+        const el = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+        el('stat_profit_' + bot.id, '$' + bot.profit.toFixed(2));
+        el('stat_trades_' + bot.id, bot.trades);
+        updateBotStats();
+        const row = document.createElement('div');
+        row.style.cssText = 'padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.04); animation:fadeIn 0.3s;';
+        const now = new Date();
+        row.innerHTML = `<span style="color:var(--text-secondary);">[${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}]</span> <span style="color:${type==='BUY'?'var(--accent-green)':'var(--accent-red)'};font-weight:700;">${type}</span> <span style="color:var(--accent-blue);">${pair}</span> $${amount} → <span style="color:${win?'var(--accent-green)':'var(--accent-red)'};">${win?'+':''}$${pnl}</span> <span style="color:var(--text-secondary);font-size:11px;">[${bot.name}]</span>`;
+        feed.insertBefore(row, feed.firstChild);
+        while (feed.children.length > 80) feed.removeChild(feed.lastChild);
+    }, 1800);
+}
+
+
+/* ═══════════════════════════════════════════════
+   LAYER 15 — ADMIN
+═══════════════════════════════════════════════ */
+const ADMIN_EMAIL = 'admin@cryptopro.com';
+const ADMIN_PASSWORD = 'admin2024';
+
+function initAdmin() {
+    if (!currentUser || (currentUser.email !== ADMIN_EMAIL && !currentUser.isAdmin)) {
+        showToast('⚠️ Admin access required. Login with admin credentials.');
+        showLayer('loginLayer');
+        return;
+    }
+    renderAdminStats();
+    renderAdminUsers();
+    renderAdminDeposits();
+    renderAdminWithdrawals();
+}
+
+function renderAdminStats() {
+    const allUsers = Object.values(users).filter(u => !u.isAdmin);
+    const realUsers = allUsers.filter(u => u.accountType !== 'demo');
+    const demoUsers = allUsers.filter(u => u.accountType === 'demo');
+    const totalBalance = realUsers.reduce((a, u) => a + (u.balance || 0), 0);
+    const totalDeposits = allUsers.reduce((a, u) => a + (u.deposited || 0), 0);
+    const stats = [
+        { icon: '👥', label: 'Total Registered', value: allUsers.length, color: 'var(--accent-blue)' },
+        { icon: '💰', label: 'Real Accounts', value: realUsers.length, color: 'var(--accent-green)' },
+        { icon: '🎮', label: 'Demo Accounts', value: demoUsers.length, color: '#f59e0b' },
+        { icon: '📈', label: 'Real Balance', value: '$' + totalBalance.toFixed(0), color: 'var(--accent-green)' },
+        { icon: '📥', label: 'Total Deposits', value: '$' + totalDeposits.toFixed(0), color: 'var(--accent-yellow)' },
+        { icon: '📋', label: 'Total Txs', value: allUsers.reduce((a, u) => a + (u.transactions || []).length, 0), color: 'var(--accent-red)' },
+    ];
+    document.getElementById('adminStatsGrid').innerHTML = stats.map(s => `
+        <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;padding:20px;text-align:center;">
+            <div style="font-size:28px;margin-bottom:8px;">${s.icon}</div>
+            <div style="font-size:24px;font-weight:900;color:${s.color};">${s.value}</div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">${s.label}</div>
+        </div>
+    `).join('');
+}
+
+function adminTab(tab, btn) {
+    ['Users','Deposits','Withdrawals','Broadcast'].forEach(t => {
+        const el = document.getElementById('adminTab' + t);
+        const b = document.getElementById('aTab' + t);
+        if (el) el.style.display = 'none';
+        if (b) { b.style.background = 'var(--bg-tertiary)'; b.style.color = 'var(--text-secondary)'; b.style.border = '1px solid var(--border-color)'; }
+    });
+    const active = document.getElementById('adminTab' + tab.charAt(0).toUpperCase() + tab.slice(1));
+    if (active) active.style.display = 'block';
+    if (btn) { btn.style.background = 'var(--accent-red)'; btn.style.color = '#fff'; btn.style.border = 'none'; }
+}
+
+function renderAdminUsers() {
+    const query = (document.getElementById('adminSearch')?.value || '').toLowerCase();
+    const all = Object.values(users).filter(u =>
+        u.name?.toLowerCase().includes(query) || u.email?.toLowerCase().includes(query)
+    );
+    const table = document.getElementById('adminUsersTable');
+    if (!table) return;
+    if (!all.length) { table.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-secondary);">No users found.</div>'; return; }
+    table.innerHTML = all.filter(u => !u.isAdmin).map((u, idx) => `
+        <div style="display:grid;grid-template-columns:1fr 80px 140px 100px 120px 120px;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border-color);align-items:center;">
+            <div>
+                <div style="font-weight:600;font-size:14px;">#${u.registrationNumber || (idx+1)} ${u.name}</div>
+                <div style="font-size:11px;color:var(--text-secondary);">${u.email} · ${u.phone || '—'}</div>
+            </div>
+            <div style="text-align:center;"><span style="font-size:11px;padding:3px 8px;border-radius:20px;font-weight:700;background:${u.accountType==='demo'?'rgba(245,158,11,0.15)':'rgba(14,203,129,0.12)'};color:${u.accountType==='demo'?'#f59e0b':'var(--accent-green)'};">${u.accountType==='demo'?'🎮 DEMO':'💰 REAL'}</span></div>
+            <div style="font-size:12px;color:var(--text-secondary);">${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}</div>
+            <div style="text-align:right;font-weight:700;color:var(--accent-green);">$${(u.balance||0).toFixed(2)}</div>
+            <div style="text-align:center;">
+                <span style="font-size:12px;padding:3px 10px;border-radius:20px;background:${u.kycStatus === 'approved' ? 'rgba(14,203,129,0.12)' : u.kycStatus === 'submitted' ? 'rgba(252,213,53,0.12)' : 'rgba(246,70,93,0.12)'};color:${u.kycStatus === 'approved' ? 'var(--accent-green)' : u.kycStatus === 'submitted' ? 'var(--accent-yellow)' : 'var(--accent-red)'};">
+                    ${u.kycStatus === 'approved' ? '✅ Verified' : u.kycStatus === 'submitted' ? '⏳ Pending' : '❌ None'}
+                </span>
+            </div>
+            <div style="text-align:center;display:flex;gap:4px;justify-content:center;flex-wrap:wrap;">
+                <button onclick="adminEditUser('${u.email}')" style="padding:5px 10px;background:rgba(0,217,255,0.12);border:1px solid rgba(0,217,255,0.3);border-radius:6px;color:var(--accent-blue);cursor:pointer;font-size:12px;">Edit</button>
+                <button onclick="adminApproveKyc('${u.email}')" style="padding:5px 10px;background:rgba(14,203,129,0.12);border:1px solid rgba(14,203,129,0.3);border-radius:6px;color:var(--accent-green);cursor:pointer;font-size:12px;">KYC ✓</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderAdminDeposits() {
+    const allTxs = [];
+    Object.values(users).forEach(u => {
+        (u.transactions || []).filter(t => t.type === 'deposit').forEach(t => allTxs.push({ ...t, userName: u.name, userEmail: u.email }));
+    });
+    allTxs.sort((a, b) => b.amount - a.amount);
+    const table = document.getElementById('adminDepositsTable');
+    if (!table) return;
+    if (!allTxs.length) { table.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-secondary);">No deposits yet.</div>'; return; }
+    table.innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 140px 100px 120px 100px;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border-color);background:var(--bg-tertiary);">
+            <span style="color:var(--text-secondary);font-size:12px;">User</span>
+            <span style="color:var(--text-secondary);font-size:12px;">Description</span>
+            <span style="color:var(--text-secondary);font-size:12px;text-align:right;">Amount</span>
+            <span style="color:var(--text-secondary);font-size:12px;text-align:center;">Status</span>
+            <span style="color:var(--text-secondary);font-size:12px;text-align:center;">Date</span>
+        </div>
+        ${allTxs.map(t => `
+        <div style="display:grid;grid-template-columns:1fr 140px 100px 120px 100px;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border-color);align-items:center;">
+            <div>
+                <div style="font-weight:600;font-size:13px;">${t.userName}</div>
+                <div style="font-size:11px;color:var(--text-secondary);">${t.userEmail}</div>
+            </div>
+            <div style="font-size:11px;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.desc}</div>
+            <div style="text-align:right;font-weight:700;color:var(--accent-green);">$${parseFloat(t.amount).toFixed(2)}</div>
+            <div style="text-align:center;"><span style="font-size:12px;padding:3px 10px;border-radius:20px;background:${t.status==='completed'?'rgba(14,203,129,0.12)':'rgba(252,213,53,0.12)'};color:${t.status==='completed'?'var(--accent-green)':'var(--accent-yellow)'};">${t.status}</span></div>
+            <div style="text-align:center;font-size:11px;color:var(--text-secondary);">${t.date}</div>
+        </div>`).join('')}`;
+}
+
+function renderAdminWithdrawals() {
+    const allTxs = [];
+    Object.values(users).forEach(u => {
+        (u.transactions || []).filter(t => t.type === 'withdraw').forEach(t => allTxs.push({ ...t, userName: u.name, userEmail: u.email }));
+    });
+    const table = document.getElementById('adminWithdrawalsTable');
+    if (!table) return;
+    if (!allTxs.length) { table.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-secondary);">No withdrawals yet.</div>'; return; }
+    table.innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr 100px 120px 100px;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border-color);background:var(--bg-tertiary);">
+            <span style="color:var(--text-secondary);font-size:12px;">User</span>
+            <span style="color:var(--text-secondary);font-size:12px;">Destination</span>
+            <span style="color:var(--text-secondary);font-size:12px;text-align:right;">Amount</span>
+            <span style="color:var(--text-secondary);font-size:12px;text-align:center;">Status</span>
+            <span style="color:var(--text-secondary);font-size:12px;text-align:center;">Action</span>
+        </div>
+        ${allTxs.map((t, idx) => `
+        <div style="display:grid;grid-template-columns:1fr 1fr 100px 120px 100px;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border-color);align-items:center;">
+            <div>
+                <div style="font-weight:600;font-size:13px;">${t.userName}</div>
+                <div style="font-size:11px;color:var(--text-secondary);">${t.userEmail}</div>
+            </div>
+            <div style="font-size:11px;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;">${t.desc.replace('Withdrawal via ','')}</div>
+            <div style="text-align:right;font-weight:700;color:var(--accent-red);">-$${parseFloat(t.amount).toFixed(2)}</div>
+            <div style="text-align:center;" id="wStatus_${t.userEmail}_${idx}"><span style="font-size:12px;padding:3px 10px;border-radius:20px;background:rgba(252,213,53,0.12);color:var(--accent-yellow);">${t.status}</span></div>
+            <div style="text-align:center;display:flex;gap:4px;justify-content:center;">
+                <button onclick="approveWithdrawal('${t.userEmail}','${t.desc}',${idx})" style="padding:5px 8px;background:rgba(14,203,129,0.12);border:1px solid rgba(14,203,129,0.3);border-radius:6px;color:var(--accent-green);cursor:pointer;font-size:11px;">✓ Approve</button>
+            </div>
+        </div>`).join('')}`;
+}
+
+function approveWithdrawal(email, desc, idx) {
+    const user = users[email];
+    if (!user) return;
+    const tx = user.transactions.find(t => t.type === 'withdraw' && t.desc === desc);
+    if (tx) { tx.status = 'completed'; saveCurrentUser(); }
+    renderAdminWithdrawals();
+    showToast(`✅ Withdrawal approved for ${user.name}`);
+}
+
+function adminEditUser(email) {
+    const user = users[email];
+    if (!user) return;
+    document.getElementById('adminModalTitle').textContent = '✏️ Edit: ' + user.name;
+    document.getElementById('adminModalBody').innerHTML = `
+        <div class="form-group"><label>Balance ($)</label><input type="number" id="aeBalance" value="${user.balance.toFixed(2)}" step="0.01"></div>
+        <div class="form-group"><label>Name</label><input type="text" id="aeName" value="${user.name}"></div>
+        <div class="form-group">
+            <label>KYC Status</label>
+            <select id="aeKyc">
+                <option value="" ${!user.kycStatus?'selected':''}>None</option>
+                <option value="submitted" ${user.kycStatus==='submitted'?'selected':''}>Pending</option>
+                <option value="approved" ${user.kycStatus==='approved'?'selected':''}>Approved</option>
+            </select>
+        </div>
+        <button class="btn-submit" style="background:linear-gradient(135deg,var(--accent-red),#c0392b);" onclick="saveAdminUserEdit('${email}')">💾 Save Changes</button>
+    `;
+    document.getElementById('adminUserModal').style.display = 'flex';
+}
+
+function saveAdminUserEdit(email) {
+    const user = users[email];
+    if (!user) return;
+    user.balance = parseFloat(document.getElementById('aeBalance').value) || user.balance;
+    user.name = document.getElementById('aeName').value.trim() || user.name;
+    user.kycStatus = document.getElementById('aeKyc').value;
+    localStorage.setItem('cpUsers', JSON.stringify(users));
+    closeAdminModal();
+    renderAdminUsers();
+    renderAdminStats();
+    showToast('✅ User updated: ' + user.name);
+}
+
+function adminApproveKyc(email) {
+    const user = users[email];
+    if (!user) return;
+    user.kycStatus = 'approved';
+    localStorage.setItem('cpUsers', JSON.stringify(users));
+    renderAdminUsers();
+    showToast('✅ KYC approved for ' + user.name);
+}
+
+function closeAdminModal() {
+    document.getElementById('adminUserModal').style.display = 'none';
+}
+
+function sendBroadcast() {
+    const title = document.getElementById('broadcastTitle').value.trim();
+    const body = document.getElementById('broadcastBody').value.trim();
+    const type = document.getElementById('broadcastType').value;
+    if (!title || !body) { showToast('⚠️ Please fill in title and message.'); return; }
+    notifData.unshift({ id: 'bc' + Date.now(), type, icon: type === 'profit' ? '💰' : type === 'deposit' ? '📥' : '⚙️', title, body, time: 'Just now', read: false });
+    document.getElementById('broadcastTitle').value = '';
+    document.getElementById('broadcastBody').value = '';
+    showToast(`📢 Broadcast sent to ${Object.keys(users).length} users!`);
+}
+
+/* ═══════════════════════════════════════════════
+   PATCH DASHBOARD: add nav buttons for new layers
+═══════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+    // Inject extra dashboard nav buttons after page loads
+    const dashNav = document.querySelector('#dashboardLayer .nav-links');
+    if (dashNav) {
+        const extras = [
+            { label: '🔔', onclick: "showLayer('notificationsLayer')", title: 'Notifications' },
+            { label: '🏆', onclick: "showLayer('leaderboardLayer')", title: 'Leaderboard' },
+            { label: '🤖', onclick: "showLayer('tradingBotLayer')", title: 'Bots' },
+            { label: '👤', onclick: "showLayer('profileLayer')", title: 'Profile' },
+        ];
+        extras.forEach(b => {
+            const btn = document.createElement('button');
+            btn.className = 'nav-btn btn-login';
+            btn.textContent = b.label;
+            btn.title = b.title;
+            btn.setAttribute('onclick', b.onclick);
+            btn.style.cssText = 'padding:8px 12px;border-color:var(--border-color);color:var(--text-secondary);font-size:18px;';
+            dashNav.insertBefore(btn, dashNav.firstChild);
+        });
+    }
+
+    // Also inject admin shortcut (only shows for admin user)
+    const welcomeNav = document.querySelector('#welcomeLayer .nav-links');
+    if (welcomeNav) {
+        const adminBtn = document.createElement('button');
+        adminBtn.className = 'nav-btn';
+        adminBtn.textContent = '⚙ Admin';
+        adminBtn.style.cssText = 'background:rgba(246,70,93,0.15);border:1px solid rgba(246,70,93,0.4);color:var(--accent-red);font-size:12px;padding:8px 14px;';
+        adminBtn.onclick = () => {
+            if (currentUser?.email === ADMIN_EMAIL || currentUser?.isAdmin) { showLayer('adminLayer'); }
+            else { showLayer('loginLayer'); showToast('🔒 Please log in as admin to continue.'); }
+        };
+        welcomeNav.appendChild(adminBtn);
+    }
+});
+
+/* Auto-create admin user if not exists */
+if (!users[ADMIN_EMAIL]) {
+    users[ADMIN_EMAIL] = {
+        name: 'Admin', email: ADMIN_EMAIL, password: ADMIN_PASSWORD,
+        referralCode: 'CPADMIN', balance: 99999, deposited: 0, dailyProfit: 0,
+        referralBonus: 0, transactions: [], referrals: [], activePlans: [],
+        kycStatus: 'approved', isAdmin: true, createdAt: new Date().toISOString()
+    };
+    localStorage.setItem('cpUsers', JSON.stringify(users));
+}
+</script>
+
+
+<!-- UPGRADE TO REAL ACCOUNT MODAL -->
+<div id="upgradeModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9000;align-items:center;justify-content:center;padding:20px;">
+    <div style="background:var(--bg-secondary);border:2px solid var(--accent-green);border-radius:20px;padding:36px;max-width:480px;width:100%;text-align:center;position:relative;">
+        <button onclick="closeUpgradeModal()" style="position:absolute;top:12px;right:16px;background:none;border:none;color:var(--text-secondary);font-size:24px;cursor:pointer;">×</button>
+        <div style="font-size:56px;margin-bottom:16px;">🚀</div>
+        <h2 style="font-size:26px;font-weight:800;color:var(--accent-green);margin-bottom:8px;">Upgrade to Real Account</h2>
+        <p style="color:var(--text-secondary);margin-bottom:24px;line-height:1.6;">You're currently on a <strong style="color:#FCD535;">DEMO account</strong>. Upgrade now to earn real profits, make real deposits and withdrawals!</p>
+        <div style="background:rgba(14,203,129,0.1);border:1px solid rgba(14,203,129,0.3);border-radius:12px;padding:16px;margin-bottom:24px;text-align:left;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span>✅</span><span>Real daily profits up to 12%</span></div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span>✅</span><span>Withdraw to M-PESA, Bitcoin, USDT</span></div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span>✅</span><span>$25 real bonus on upgrade</span></div>
+            <div style="display:flex;align-items:center;gap:8px;"><span>✅</span><span>Access all AI trading bots</span></div>
+        </div>
+        <button onclick="upgradeToReal()" style="width:100%;padding:16px;background:linear-gradient(135deg,var(--accent-green),#0B8F5F);border:none;border-radius:12px;color:#fff;font-size:18px;font-weight:700;cursor:pointer;">💰 Upgrade Now — Free</button>
+    </div>
+</div>
+
+<!-- REGISTRATION NOTIFICATION SCRIPT -->
+<script>
+const ADMIN_NOTIFY_EMAIL = 'felixkoskey278@gmail.com';
+
+async function sendRegistrationNotification(userData) {
+    // Use EmailJS free tier to send notification emails
+    // EmailJS service - sends email via their API without backend
+    const templateParams = {
+        to_email: ADMIN_NOTIFY_EMAIL,
+        subject: '🎉 New CryptoPro Registration!',
+        user_name: userData.name,
+        user_email: userData.email,
+        user_phone: userData.phone,
+        account_type: userData.accountType === 'demo' ? '🎮 DEMO Account' : '💰 REAL Account',
+        referral_code: userData.referralCode,
+        total_users: Object.keys(users).length,
+        timestamp: new Date().toLocaleString('en-KE', {timeZone:'Africa/Nairobi'}),
+        message: `
+New user registered on CryptoPro!
+
+Name: ${userData.name}
+Email: ${userData.email}
+Phone: ${userData.phone}
+Account Type: ${userData.accountType === 'demo' ? 'DEMO' : 'REAL'}
+Referral Code: ${userData.referralCode}
+Registered At: ${new Date().toLocaleString('en-KE', {timeZone:'Africa/Nairobi'})} (EAT)
+Total Registered Users: ${Object.keys(users).length}
+        `.trim()
+    };
+
+    // Method 1: EmailJS (Recommended — free 200 emails/month)
+    // To activate: sign up at emailjs.com, create a service + template,
+    // then replace the IDs below with yours.
+    const EMAILJS_SERVICE_ID  = 'service_cryptopro';
+    const EMAILJS_TEMPLATE_ID = 'template_newuser';
+    const EMAILJS_PUBLIC_KEY  = 'YOUR_EMAILJS_PUBLIC_KEY';
+
+    try {
+        if (typeof emailjs !== 'undefined') {
+            await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams, EMAILJS_PUBLIC_KEY);
+            console.log('Email notification sent via EmailJS');
+            return;
+        }
+    } catch(e) { console.warn('EmailJS failed:', e); }
+
+    // Method 2: Fallback — Formspree (also free)
+    try {
+        await fetch('https://formspree.io/f/YOUR_FORMSPREE_ID', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({
+                email: ADMIN_NOTIFY_EMAIL,
+                _subject: templateParams.subject,
+                message: templateParams.message
+            })
+        });
+        console.log('Email notification sent via Formspree');
+    } catch(e) { console.warn('Formspree failed:', e); }
+}
+
+// ── DEMO/REAL ACCOUNT FUNCTIONS ──────────────────────────────
+function selectAccountType(type) {
+    document.getElementById('accountType').value = type;
+    const realBtn = document.getElementById('btnRealAcc');
+    const demoBtn = document.getElementById('btnDemoAcc');
+    const note = document.getElementById('accountTypeNote');
+    if (type === 'real') {
+        realBtn.style.borderColor = 'var(--accent-green)';
+        realBtn.style.background = 'rgba(14,203,129,0.15)';
+        realBtn.style.color = 'var(--accent-green)';
+        demoBtn.style.borderColor = 'var(--border-color)';
+        demoBtn.style.background = 'var(--bg-tertiary)';
+        demoBtn.style.color = 'var(--text-secondary)';
+        note.textContent = '✅ Real Account — Earn real profits, withdraw anytime';
+        note.style.color = 'var(--accent-green)';
+    } else {
+        demoBtn.style.borderColor = '#f59e0b';
+        demoBtn.style.background = 'rgba(245,158,11,0.15)';
+        demoBtn.style.color = '#f59e0b';
+        realBtn.style.borderColor = 'var(--border-color)';
+        realBtn.style.background = 'var(--bg-tertiary)';
+        realBtn.style.color = 'var(--text-secondary)';
+        note.textContent = '🎮 Demo Account — Practice with $10,000 virtual money, no real withdrawals';
+        note.style.color = '#f59e0b';
+    }
+}
+
+function showUpgradeModal() {
+    document.getElementById('upgradeModal').style.display = 'flex';
+}
+
+function closeUpgradeModal() {
+    document.getElementById('upgradeModal').style.display = 'none';
+}
+
+function upgradeToReal() {
+    if (!currentUser) return;
+    currentUser.accountType = 'real';
+    currentUser.balance = 25;
+    currentUser.transactions.push({
+        type: 'bonus', amount: 25,
+        desc: '🎉 Upgrade Bonus — Welcome to Real Account',
+        date: new Date().toLocaleDateString(), status: 'completed'
+    });
+    saveCurrentUser();
+    closeUpgradeModal();
+    applyAccountMode();
+    showToast('🎉 Upgraded to Real Account!\n$25 real bonus credited!');
+}
+
+function applyAccountMode() {
+    if (!currentUser) return;
+    const isDemo = currentUser.accountType === 'demo';
+    const banner = document.getElementById('demoBanner');
+    const card = document.getElementById('balanceCard');
+    if (banner) banner.style.display = isDemo ? 'flex' : 'none';
+    if (card) {
+        card.style.background = isDemo
+            ? 'linear-gradient(135deg,#f59e0b,#d97706)'
+            : 'linear-gradient(135deg,#0ECB81,#0B8F5F)';
+    }
+    // Disable deposit/withdraw for demo
+    const depositBtn = document.querySelector('.btn-deposit');
+    const withdrawLayer = document.getElementById('withdrawLayer');
+    if (isDemo && depositBtn) {
+        depositBtn.style.opacity = '0.5';
+        depositBtn.onclick = () => showToast('🎮 Demo accounts cannot make real deposits.\nUpgrade to a Real Account first!');
+    }
+}
+</script>
+
+</body>
+</html>
